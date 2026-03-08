@@ -202,7 +202,7 @@ function calcSystem(sys, width, projection, height, mounting, color, drain, led,
     if (!r) return {system: sys, name: 'SB 400', unavail: 'Размер вне таблицы'};
     moduleResult = {total: r.price, modules: [{type: mounting==='free'?'Отдельностоящая':'Настенная', width: r.widthUsed, proj: r.projUsed, price: r.price}]};
     sysName = 'SB 400';
-    sysDesc = 'Поворотные алюминиевые лопасти 200 мм · Вынос до 7000 мм';
+    sysDesc = 'Стандартная биоклиматическая пергола · ламели 200 мм · вынос до 7000 мм';
     if (height > 3300) notes.push('⚠️ Высота > 3300 мм: нестандарт, цена по запросу');
   }
 
@@ -213,7 +213,7 @@ function calcSystem(sys, width, projection, height, mounting, color, drain, led,
     if (!r) return {system: sys, name: 'SB 400R', unavail: 'Размер вне таблицы'};
     moduleResult = {total: r.price, modules: [{type: 'SB400R', width: r.widthUsed, proj: r.projUsed, price: r.price}]};
     sysName = 'SB 400R';
-    sysDesc = 'Как SB400, но дренаж воды на сторону клиента (DN50) · 2 водостока';
+    sysDesc = 'SB400 с боковым дренажом воды DN50 · 2 водостока';
     notes.push('ℹ️ Настенное и отдельностоящее — единая таблица цен');
   }
 
@@ -224,7 +224,7 @@ function calcSystem(sys, width, projection, height, mounting, color, drain, led,
     moduleResult = getMultiModulePrice(firstTbl, nextTbl, width, projection, mounting);
     if (!moduleResult) return {system: sys, name: 'SB 550', unavail: `Размер вне диапазона SB550`};
     sysName = 'SB 550';
-    sysDesc = 'Лопасти премиум класса · Модульная ширина · Вынос до 6980 мм';
+    sysDesc = 'Премиальная система · большие пролёты · модульная конструкция';
     if (height > 3200) notes.push('⚠️ Высота > 3200 мм: надбавка 160 € за стойку');
   }
 
@@ -250,7 +250,7 @@ function calcSystem(sys, width, projection, height, mounting, color, drain, led,
     moduleResult = getMultiModulePrice(firstTbl, nextTbl, width, projection, mounting);
     if (!moduleResult) return {system: sys, name: 'Solid', unavail: 'Размер вне диапазона Solid'};
     sysName = 'Solid';
-    sysDesc = 'Тканевая кровля Serge Ferrari · Somfy io управление · Включает 5-кан. пульт';
+    sysDesc = 'Фиксированная крыша без ламелей · максимальная защита от дождя';
     notes.push('ℹ️ Включено: конструкция + ткань + Somfy io + пульт 5 каналов');
     if (height > 3000) notes.push('⚠️ Высота > 3000 мм: нестандарт, цена по запросу');
   }
