@@ -147,7 +147,14 @@ const fmt = n => n.toLocaleString('ru-RU') + ' €';
 // ============================================================
 // MAIN CALCULATE
 // ============================================================
-function calculate() {
+const motorState = {}; // { sb400: false, sb400r: false }
+
+function onMotorChange(el) {
+  motorState[el.dataset.sys] = el.value === '1';
+  calculate(true);
+}
+
+function calculate(skipScroll = false) {
   const width = parseInt(document.getElementById('width').value);
   const projection = parseInt(document.getElementById('projection').value);
   const height = parseInt(document.getElementById('height').value);
@@ -158,7 +165,6 @@ function calculate() {
   const led = document.getElementById('opt-led').checked;
   const ledPts = document.getElementById('opt-led-pts').checked;
   const teleco = document.getElementById('opt-teleco').checked;
-  const hiddenMotor = document.getElementById('opt-hidden-motor').checked;
 
   if (Number.isNaN(width) || Number.isNaN(projection) || Number.isNaN(height)) {
     const div = document.getElementById('results');
@@ -175,17 +181,17 @@ function calculate() {
     : [systemSel];
 
   for (const sys of systemsToCalc) {
+    const hiddenMotor = !!(motorState[sys]);
     let result = calcSystem(sys, width, projection, height, mounting, color, drain, led, ledPts, teleco, hiddenMotor);
     if (result) results.push(result);
   }
 
   const availableResults = results.filter(r => !r.unavail);
-  const unavailableResults = results.filter(r => r.unavail);
 
   availableResults.sort((a, b) => a.totalFinal - b.totalFinal);
   if (availableResults.length > 0) availableResults[0].isBest = true;
 
-  renderResults(availableResults, width, projection, height, mounting);
+  renderResults(availableResults, width, projection, height, mounting, skipScroll);
 }
 
 function calcSystem(sys, width, projection, height, mounting, color, drain, led, ledPts, teleco, hiddenMotor) {
@@ -325,7 +331,7 @@ function calcSystem(sys, width, projection, height, mounting, color, drain, led,
           base, surcharges, totalFinal, notes, isBest: false};
 }
 
-function renderResults(results, width, projection, height, mounting) {
+function renderResults(results, width, projection, height, mounting, skipScroll = false) {
   const div = document.getElementById('results');
   div.style.display = 'block';
 
@@ -338,14 +344,20 @@ function renderResults(results, width, projection, height, mounting) {
   html += `<h2>Результаты расчёта · ${width}×${projection} мм · ${mounting==='free'?'Отдельностоящая':'Настенная'} · h=${height} мм</h2>`;
 
   for (const r of results) {
-    if (r.unavail) {
-      html += `<div class="system-result"><div class="sys-name">${r.name}</div><div class="unavail">⛔ Недоступно: ${r.unavail}</div></div>`;
-      continue;
-    }
-
     html += `<div class="system-result ${r.isBest ? 'best' : ''}">`;
     html += `<div class="sys-name">${r.name} ${r.isBest ? '<span class="best-badge">✓ ОПТИМАЛЬНО</span>' : ''}</div>`;
     html += `<div class="sys-desc">${r.desc}</div>`;
+
+    // Motor option dropdown for SB 400 / SB 400R
+    if (r.system === 'sb400' || r.system === 'sb400r') {
+      const sel = motorState[r.system] ? '1' : '0';
+      html += `<div class="motor-result-row">
+        <select class="motor-result-select" data-sys="${r.system}" onchange="onMotorChange(this)">
+          <option value="0" ${sel==='0'?'selected':''}>Без скрытого мотора</option>
+          <option value="1" ${sel==='1'?'selected':''}>+ Скрытый мотор в балке (+10% к цене)</option>
+        </select>
+      </div>`;
+    }
 
     html += `<div class="price-breakdown">`;
     for (const m of r.modules) {
@@ -368,7 +380,7 @@ function renderResults(results, width, projection, height, mounting) {
   html += `</div>`;
 
   div.innerHTML = html;
-  div.scrollIntoView({behavior:'smooth', block:'start'});
+  if (!skipScroll) div.scrollIntoView({behavior:'smooth', block:'start'});
 }
 
 // Check which systems are available for given dimensions
@@ -396,52 +408,6 @@ function getAvailableSystems(width, projection, mounting) {
   return available;
 }
 
-// Update dropdown: hide options that are unavailable for current dimensions
-function updateSystemDropdown() {
-  const width = parseInt(document.getElementById('width').value) || 0;
-  const projection = parseInt(document.getElementById('projection').value) || 0;
-  const mounting = document.getElementById('mounting').value;
-
-  if (!width || !projection) return; // don't filter if fields are empty
-
-  const available = getAvailableSystems(width, projection, mounting);
-  const select = document.getElementById('system');
-  const currentVal = select.value;
-
-  for (const opt of select.options) {
-    if (opt.value === 'auto') continue; // «Подобрать оптимальную» — всегда видна
-    const isAvailable = available.has(opt.value);
-    opt.hidden = !isAvailable;
-    opt.disabled = !isAvailable;
-  }
-
-  // Если текущий выбор стал недоступен — сбросить на «auto»
-  if (currentVal !== 'auto' && !available.has(currentVal)) {
-    select.value = 'auto';
-    updateSb400MotorVisibility();
-  }
-}
-
-// Show/hide hidden motor option based on system selection
-function updateSb400MotorVisibility() {
-  const row = document.getElementById('sb400-motor-row');
-  const note = document.getElementById('motor-model-note');
-  const val = document.getElementById('system').value;
-  const isAuto = val === 'auto';
-  const showMotor = val === 'sb400' || val === 'sb400r' || isAuto;
-  row.classList.toggle('hidden', !showMotor);
-  // Show clarification note only when "auto" is selected
-  if (note) note.classList.toggle('hidden', !isAuto);
-  // Uncheck motor if hidden
-  if (!showMotor) document.getElementById('opt-hidden-motor').checked = false;
-}
-
-document.getElementById('system').addEventListener('change', updateSb400MotorVisibility);
-document.getElementById('width').addEventListener('input', updateSystemDropdown);
-document.getElementById('projection').addEventListener('input', updateSystemDropdown);
-document.getElementById('mounting').addEventListener('change', updateSystemDropdown);
-updateSb400MotorVisibility();
-updateSystemDropdown();
 
 // Checkbox styling
 document.querySelectorAll('.checkbox-item input').forEach(cb => {

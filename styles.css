@@ -187,6 +187,21 @@ select option:disabled { color: var(--muted); }
 .motor-model-note { font-size: 11px; color: var(--muted); }
 .motor-model-note.hidden { display: none; }
 
+/* ── Motor select inside result card ─────────────────── */
+.motor-result-row { margin: 10px 0 4px; }
+.motor-result-select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--fog);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+  cursor: pointer;
+}
+.motor-result-select:focus { outline: none; border-color: var(--accent); }
+
 /* ── Button ───────────────────────────────────────────── */
 .btn-calc {
   width: 100%;
