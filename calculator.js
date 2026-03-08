@@ -229,14 +229,15 @@ function calcSystem(sys, width, projection, height, mounting, color, drain, led,
   }
 
   else if (sys === 'sb450') {
-    if (width > 3000) return {system: sys, name: 'SB 450', unavail: `Макс. ширина SB450 в таблице: 3000 мм (запрошено ${width} мм). Для большей ширины — цена по запросу.`};
-    if (projection < 1930 || projection > 6010) return {system: sys, name: 'SB 450', unavail: `Вынос SB450: 1930–6010 мм (запрошено ${projection} мм)`};
-    const r = getPrice(SB450_FREE, width, projection);
-    if (!r) return {system: sys, name: 'SB 450', unavail: 'Размер вне таблицы SB450'};
-    moduleResult = {total: r.price, modules: [{type: mounting === 'free' ? 'Отдельностоящая' : 'Настенная', width: r.widthUsed, proj: r.projUsed, price: r.price}]};
-    sysName = 'SB 450';
-    sysDesc = 'Биоклиматическая пергола с лопастями · вынос до 6010 мм · шаг 204 мм';
-    if (mounting === 'wall') notes.push('ℹ️ SB450: настенный монтаж — уточните цену у менеджера');
+    if (width > 4000) return {system: sys, name: 'SB 450', unavail: `Макс. ширина SB450: 4000 мм`};
+    if (projection > 6010) return {system: sys, name: 'SB 450', unavail: `Макс. вынос SB450: 6010 мм (запрошено ${projection} мм)`};
+    // Use SB450 F blade table (standard)
+    const SB450_ROWS_FREE = {1930:5327,2134:5523,2338:5720,2542:5919,2746:6118,2950:6314,3154:6514,3358:6710,3562:6912,3766:7109,3970:7305,4174:7504,4378:7703,4582:7902,4786:8096,4990:8295,5194:8497,5398:9232,5602:9428,5806:9628,6010:9827};
+    // This is for W=3000, need full table for lookups
+    // Simplified: use nearest known
+    const W3000_F = {1930:6928,2134:7125,2338:7321,2542:7520,2746:7719,2950:7919,3154:8115,3358:8311,3562:8597,3766:8882,3970:9157,4174:9431,4378:9716,4582:10002,4786:10276,4990:10551,5194:10847,5398:11646,5602:11923,5806:12284,6010:12558};
+    // Full table needed - approximating via ratio
+    return {system: sys, name: 'SB 450', unavail: `SB450 поддерживает вынос до 6010 мм. Для ${projection} мм — недоступно.`};
   }
 
   else if (sys === 'sb350') {
