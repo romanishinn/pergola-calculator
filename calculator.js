@@ -158,7 +158,7 @@ function calculate() {
   const led = document.getElementById('opt-led').checked;
   const ledPts = document.getElementById('opt-led-pts').checked;
   const teleco = document.getElementById('opt-teleco').checked;
-  const hiddenMotor = document.getElementById('sb400motor').value === 'hidden';
+  const hiddenMotor = document.getElementById('opt-hidden-motor').checked;
 
   if (Number.isNaN(width) || Number.isNaN(projection) || Number.isNaN(height)) {
     const div = document.getElementById('results');
@@ -171,7 +171,7 @@ function calculate() {
 
   // Determine which systems to calculate
   const systemsToCalc = systemSel === 'auto'
-    ? ['sb400', 'sb400r', 'sb550', 'sb450', 'solid']
+    ? ['sb400', 'sb400r', 'sb550', 'sb450', 'sb350', 'solid']
     : [systemSel];
 
   for (const sys of systemsToCalc) {
@@ -185,7 +185,7 @@ function calculate() {
   availableResults.sort((a, b) => a.totalFinal - b.totalFinal);
   if (availableResults.length > 0) availableResults[0].isBest = true;
 
-  renderResults([...availableResults, ...unavailableResults], width, projection, height, mounting);
+  renderResults(availableResults, width, projection, height, mounting);
 }
 
 function calcSystem(sys, width, projection, height, mounting, color, drain, led, ledPts, teleco, hiddenMotor) {
@@ -238,6 +238,17 @@ function calcSystem(sys, width, projection, height, mounting, color, drain, led,
     const W3000_F = {1930:6928,2134:7125,2338:7321,2542:7520,2746:7719,2950:7919,3154:8115,3358:8311,3562:8597,3766:8882,3970:9157,4174:9431,4378:9716,4582:10002,4786:10276,4990:10551,5194:10847,5398:11646,5602:11923,5806:12284,6010:12558};
     // Full table needed - approximating via ratio
     return {system: sys, name: 'SB 450', unavail: `SB450 поддерживает вынос до 6010 мм. Для ${projection} мм — недоступно.`};
+  }
+
+  else if (sys === 'sb350') {
+    if (width > 3500) return {system: sys, name: 'SB 350', unavail: `SB 350 выпускается только шириной 3500 мм (запрошено ${width} мм)`};
+    if (projection < 3400 || projection > 4750) return {system: sys, name: 'SB 350', unavail: `Вынос SB 350: 3400–4750 мм (запрошено ${projection} мм)`};
+    const r = getPrice(SB350, width, projection);
+    if (!r) return {system: sys, name: 'SB 350', unavail: 'Размер вне таблицы'};
+    moduleResult = {total: r.price, modules: [{type: mounting === 'free' ? 'Отдельностоящая' : 'Настенная', width: r.widthUsed, proj: r.projUsed, price: r.price}]};
+    sysName = 'SB 350';
+    sysDesc = 'Биоклиматическая пергола · ширина 3500 мм · вынос до 4750 мм · высота 2500 мм';
+    notes.push('ℹ️ Фиксированная высота 2500 мм · размеры не изменяются');
   }
 
   else if (sys === 'solid') {
@@ -360,6 +371,57 @@ function renderResults(results, width, projection, height, mounting) {
   div.scrollIntoView({behavior:'smooth', block:'start'});
 }
 
+// Check which systems are available for given dimensions
+function getAvailableSystems(width, projection, mounting) {
+  const available = new Set();
+
+  // SB 400
+  if (width <= 4000 && projection >= 3400 && projection <= 7000) available.add('sb400');
+
+  // SB 400R
+  if (width <= 4000 && projection >= 3400 && projection <= 7000) available.add('sb400r');
+
+  // SB 550 — multi-module, max 3 × 5000 = 15000 мм
+  if (projection >= 2580 && projection <= 6980 && width <= 15000) available.add('sb550');
+
+  // SB 450 — таблица только до 3000 мм ширины
+  if (width <= 3000 && projection >= 1930 && projection <= 6010) available.add('sb450');
+
+  // SB 350 — только 3500 мм ширины, вынос 3400–4750
+  if (width <= 3500 && projection >= 3400 && projection <= 4750) available.add('sb350');
+
+  // Solid — multi-module, max 3 × 4000 = 12000 мм
+  if (projection >= 3000 && projection <= 7000 && width <= 12000) available.add('solid');
+
+  return available;
+}
+
+// Update dropdown: hide options that are unavailable for current dimensions
+function updateSystemDropdown() {
+  const width = parseInt(document.getElementById('width').value) || 0;
+  const projection = parseInt(document.getElementById('projection').value) || 0;
+  const mounting = document.getElementById('mounting').value;
+
+  if (!width || !projection) return; // don't filter if fields are empty
+
+  const available = getAvailableSystems(width, projection, mounting);
+  const select = document.getElementById('system');
+  const currentVal = select.value;
+
+  for (const opt of select.options) {
+    if (opt.value === 'auto') continue; // «Подобрать оптимальную» — всегда видна
+    const isAvailable = available.has(opt.value);
+    opt.hidden = !isAvailable;
+    opt.disabled = !isAvailable;
+  }
+
+  // Если текущий выбор стал недоступен — сбросить на «auto»
+  if (currentVal !== 'auto' && !available.has(currentVal)) {
+    select.value = 'auto';
+    updateSb400MotorVisibility();
+  }
+}
+
 // Show/hide hidden motor option based on system selection
 function updateSb400MotorVisibility() {
   const row = document.getElementById('sb400-motor-row');
@@ -369,7 +431,11 @@ function updateSb400MotorVisibility() {
 }
 
 document.getElementById('system').addEventListener('change', updateSb400MotorVisibility);
+document.getElementById('width').addEventListener('input', updateSystemDropdown);
+document.getElementById('projection').addEventListener('input', updateSystemDropdown);
+document.getElementById('mounting').addEventListener('change', updateSystemDropdown);
 updateSb400MotorVisibility();
+updateSystemDropdown();
 
 // Checkbox styling
 document.querySelectorAll('.checkbox-item input').forEach(cb => {

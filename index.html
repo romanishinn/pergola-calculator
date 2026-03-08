@@ -46,15 +46,18 @@
           <option value="sb400r">SB 400R (лопасти, дренаж на сторону клиента)</option>
           <option value="sb550">SB 550 (лопасти премиум, ширина до 5000+)</option>
           <option value="sb450">SB 450 (лопасти, вынос до 6010)</option>
+          <option value="sb350">SB 350 (ширина 3500 мм, вынос до 4750)</option>
           <option value="solid">Solid (ткань Serge Ferrari)</option>
         </select>
 
         <div id="sb400-motor-row" class="hidden">
-          <label>Вариант мотора (SB 400 / SB 400R)</label>
-          <select id="sb400motor">
-            <option value="visible">Мотор видимый (стандарт)</option>
-            <option value="hidden">Мотор скрытый в балке (+10%)</option>
-          </select>
+          <label class="checkbox-item" id="lbl-hidden-motor">
+            <input type="checkbox" id="opt-hidden-motor">
+            <div>
+              <div class="label-text">⚙️ Скрытый мотор в балке</div>
+              <div class="label-desc">Надбавка +10% к цене системы</div>
+            </div>
+          </label>
         </div>
       </div>
     </div>
@@ -119,6 +122,78 @@
   <button class="btn-calc" onclick="calculate()">🔢 Рассчитать</button>
 
   <div class="result-section" id="results" style="display:none;"></div>
+</div>
+
+<div class="compare-section">
+  <div class="container">
+    <div class="compare-card">
+    <h2>Сравнение моделей перголы</h2>
+    <div class="compare-table-wrap">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Модель</th>
+            <th>Для чего подходит</th>
+            <th>Макс. ширина</th>
+            <th>Вынос (мм)</th>
+            <th>Отдельностоящая</th>
+            <th>Возле стены</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="model-name">SB 550</td>
+            <td>Большие террасы, рестораны, гостиницы, коммерческие пространства. Премиальные лопасти, модульная конструкция до 3 секций.</td>
+            <td>до 15&nbsp;000 мм<br><small style="color:#aaa">(3 модуля по 5000)</small></td>
+            <td>2580–6980</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+          </tr>
+          <tr>
+            <td class="model-name">SB 450</td>
+            <td>Частные дома, средние террасы, сады. Вынос до 6010 мм, шаг 204 мм.</td>
+            <td>до 3&nbsp;000 мм</td>
+            <td>1930–6010</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+          </tr>
+          <tr>
+            <td class="model-name">SB 400</td>
+            <td>Небольшие террасы, дворы, компактные зоны отдыха. Лопасти 200 мм, вынос до 7000 мм.</td>
+            <td>до 4&nbsp;000 мм</td>
+            <td>3400–7000</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+          </tr>
+          <tr>
+            <td class="model-name">SB 400R</td>
+            <td>Террасы, где важен хороший отвод дождевой воды. Дренаж DN50 на сторону клиента.</td>
+            <td>до 4&nbsp;000 мм</td>
+            <td>3400–7000</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+          </tr>
+          <tr>
+            <td class="model-name">SB 350</td>
+            <td>Простые решения для небольших террас. Фиксированная ширина 3500 мм, высота 2500 мм.</td>
+            <td>3&nbsp;500 мм</td>
+            <td>3400–4750</td>
+            <td class="check">✓</td>
+            <td class="dash">—</td>
+          </tr>
+          <tr>
+            <td class="model-name">SOLID</td>
+            <td>Полностью закрытая крыша без лопастей (ткань Serge Ferrari). Максимальная защита от дождя и солнца.</td>
+            <td>до 12&nbsp;000 мм<br><small style="color:#aaa">(3 модуля по 4000)</small></td>
+            <td>3000–7000</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    </div>
+  </div>
 </div>
 
 <div class="about-section">
