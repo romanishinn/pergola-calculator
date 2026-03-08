@@ -370,6 +370,57 @@ function renderResults(results, width, projection, height, mounting) {
   div.scrollIntoView({behavior:'smooth', block:'start'});
 }
 
+// Check which systems are available for given dimensions
+function getAvailableSystems(width, projection, mounting) {
+  const available = new Set();
+
+  // SB 400
+  if (width <= 4000 && projection >= 3400 && projection <= 7000) available.add('sb400');
+
+  // SB 400R
+  if (width <= 4000 && projection >= 3400 && projection <= 7000) available.add('sb400r');
+
+  // SB 550 — multi-module, max 3 × 5000 = 15000 мм
+  if (projection >= 2580 && projection <= 6980 && width <= 15000) available.add('sb550');
+
+  // SB 450 — таблица только до 3000 мм ширины
+  if (width <= 3000 && projection >= 1930 && projection <= 6010) available.add('sb450');
+
+  // SB 350 — только 3500 мм ширины, вынос 3400–4750
+  if (width <= 3500 && projection >= 3400 && projection <= 4750) available.add('sb350');
+
+  // Solid — multi-module, max 3 × 4000 = 12000 мм
+  if (projection >= 3000 && projection <= 7000 && width <= 12000) available.add('solid');
+
+  return available;
+}
+
+// Update dropdown: hide options that are unavailable for current dimensions
+function updateSystemDropdown() {
+  const width = parseInt(document.getElementById('width').value) || 0;
+  const projection = parseInt(document.getElementById('projection').value) || 0;
+  const mounting = document.getElementById('mounting').value;
+
+  if (!width || !projection) return; // don't filter if fields are empty
+
+  const available = getAvailableSystems(width, projection, mounting);
+  const select = document.getElementById('system');
+  const currentVal = select.value;
+
+  for (const opt of select.options) {
+    if (opt.value === 'auto') continue; // «Подобрать оптимальную» — всегда видна
+    const isAvailable = available.has(opt.value);
+    opt.hidden = !isAvailable;
+    opt.disabled = !isAvailable;
+  }
+
+  // Если текущий выбор стал недоступен — сбросить на «auto»
+  if (currentVal !== 'auto' && !available.has(currentVal)) {
+    select.value = 'auto';
+    updateSb400MotorVisibility();
+  }
+}
+
 // Show/hide hidden motor option based on system selection
 function updateSb400MotorVisibility() {
   const row = document.getElementById('sb400-motor-row');
@@ -379,7 +430,11 @@ function updateSb400MotorVisibility() {
 }
 
 document.getElementById('system').addEventListener('change', updateSb400MotorVisibility);
+document.getElementById('width').addEventListener('input', updateSystemDropdown);
+document.getElementById('projection').addEventListener('input', updateSystemDropdown);
+document.getElementById('mounting').addEventListener('change', updateSystemDropdown);
 updateSb400MotorVisibility();
+updateSystemDropdown();
 
 // Checkbox styling
 document.querySelectorAll('.checkbox-item input').forEach(cb => {
