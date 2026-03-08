@@ -160,6 +160,13 @@ function calculate() {
   const teleco = document.getElementById('opt-teleco').checked;
   const hiddenMotor = document.getElementById('sb400motor').value === 'hidden';
 
+  if (Number.isNaN(width) || Number.isNaN(projection) || Number.isNaN(height)) {
+    const div = document.getElementById('results');
+    div.style.display = 'block';
+    div.innerHTML = `<div class="result-card"><div class="error">❌ Заполните корректно поля: ширина, вынос и высота (только числа).</div></div>`;
+    return;
+  }
+
   const results = [];
 
   // Determine which systems to calculate
@@ -172,11 +179,13 @@ function calculate() {
     if (result) results.push(result);
   }
 
-  // Sort by total price
-  results.sort((a,b) => a.totalFinal - b.totalFinal);
-  if (results.length > 0) results[0].isBest = true;
+  const availableResults = results.filter(r => !r.unavail);
+  const unavailableResults = results.filter(r => r.unavail);
 
-  renderResults(results, width, projection, height, mounting);
+  availableResults.sort((a, b) => a.totalFinal - b.totalFinal);
+  if (availableResults.length > 0) availableResults[0].isBest = true;
+
+  renderResults([...availableResults, ...unavailableResults], width, projection, height, mounting);
 }
 
 function calcSystem(sys, width, projection, height, mounting, color, drain, led, ledPts, teleco, hiddenMotor) {
@@ -341,11 +350,15 @@ function renderResults(results, width, projection, height, mounting) {
 }
 
 // Show/hide hidden motor option based on system selection
-document.getElementById('system').addEventListener('change', function() {
+function updateSb400MotorVisibility() {
   const row = document.getElementById('sb400-motor-row');
-  const showMotor = this.value === 'sb400' || this.value === 'sb400r' || this.value === 'auto';
+  const val = document.getElementById('system').value;
+  const showMotor = val === 'sb400' || val === 'sb400r' || val === 'auto';
   row.classList.toggle('hidden', !showMotor);
-});
+}
+
+document.getElementById('system').addEventListener('change', updateSb400MotorVisibility);
+updateSb400MotorVisibility();
 
 // Checkbox styling
 document.querySelectorAll('.checkbox-item input').forEach(cb => {
