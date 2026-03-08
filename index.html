@@ -39,29 +39,7 @@
           <option value="wall">Настенная (Wall-mounted)</option>
         </select>
 
-        <label>Система (серия)</label>
-        <select id="system">
-          <option value="auto">⭐ Подобрать оптимальную</option>
-          <option value="sb400">SB 400 (лопасти, вынос до 7000)</option>
-          <option value="sb400r">SB 400R (лопасти, дренаж на сторону клиента)</option>
-          <option value="sb550">SB 550 (лопасти премиум, ширина до 5000+)</option>
-          <option value="sb450">SB 450 (лопасти, вынос до 6010)</option>
-          <option value="sb350">SB 350 (ширина 3500 мм, вынос до 4750)</option>
-          <option value="solid">Solid (ткань Serge Ferrari)</option>
-        </select>
-
-        <div id="sb400-motor-row" class="hidden motor-option-row">
-          <label class="checkbox-item motor-checkbox-item" id="lbl-hidden-motor">
-            <input type="checkbox" id="opt-hidden-motor">
-            <div class="motor-label-body">
-              <div class="motor-label-title">Скрытый мотор в балке</div>
-              <div class="motor-label-meta">
-                <span class="motor-surcharge">+10% к цене системы</span>
-                <span id="motor-model-note" class="motor-model-note hidden">· только для SB 400 / SB 400R</span>
-              </div>
-            </div>
-          </label>
-        </div>
+        <input type="hidden" id="system" value="auto">
       </div>
     </div>
 

@@ -158,7 +158,7 @@ function calculate() {
   const led = document.getElementById('opt-led').checked;
   const ledPts = document.getElementById('opt-led-pts').checked;
   const teleco = document.getElementById('opt-teleco').checked;
-  const hiddenMotor = document.getElementById('opt-hidden-motor').checked;
+  const hiddenMotor = false;
 
   if (Number.isNaN(width) || Number.isNaN(projection) || Number.isNaN(height)) {
     const div = document.getElementById('results');
@@ -396,52 +396,6 @@ function getAvailableSystems(width, projection, mounting) {
   return available;
 }
 
-// Update dropdown: hide options that are unavailable for current dimensions
-function updateSystemDropdown() {
-  const width = parseInt(document.getElementById('width').value) || 0;
-  const projection = parseInt(document.getElementById('projection').value) || 0;
-  const mounting = document.getElementById('mounting').value;
-
-  if (!width || !projection) return; // don't filter if fields are empty
-
-  const available = getAvailableSystems(width, projection, mounting);
-  const select = document.getElementById('system');
-  const currentVal = select.value;
-
-  for (const opt of select.options) {
-    if (opt.value === 'auto') continue; // «Подобрать оптимальную» — всегда видна
-    const isAvailable = available.has(opt.value);
-    opt.hidden = !isAvailable;
-    opt.disabled = !isAvailable;
-  }
-
-  // Если текущий выбор стал недоступен — сбросить на «auto»
-  if (currentVal !== 'auto' && !available.has(currentVal)) {
-    select.value = 'auto';
-    updateSb400MotorVisibility();
-  }
-}
-
-// Show/hide hidden motor option based on system selection
-function updateSb400MotorVisibility() {
-  const row = document.getElementById('sb400-motor-row');
-  const note = document.getElementById('motor-model-note');
-  const val = document.getElementById('system').value;
-  const isAuto = val === 'auto';
-  const showMotor = val === 'sb400' || val === 'sb400r' || isAuto;
-  row.classList.toggle('hidden', !showMotor);
-  // Show clarification note only when "auto" is selected
-  if (note) note.classList.toggle('hidden', !isAuto);
-  // Uncheck motor if hidden
-  if (!showMotor) document.getElementById('opt-hidden-motor').checked = false;
-}
-
-document.getElementById('system').addEventListener('change', updateSb400MotorVisibility);
-document.getElementById('width').addEventListener('input', updateSystemDropdown);
-document.getElementById('projection').addEventListener('input', updateSystemDropdown);
-document.getElementById('mounting').addEventListener('change', updateSystemDropdown);
-updateSb400MotorVisibility();
-updateSystemDropdown();
 
 // Checkbox styling
 document.querySelectorAll('.checkbox-item input').forEach(cb => {
