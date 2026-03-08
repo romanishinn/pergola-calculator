@@ -3,60 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Aluprof Pergola Calculator 2026</title>
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: #1a1a2e; }
-  .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 20px 30px; display: flex; align-items: center; gap: 15px; }
-  .header h1 { font-size: 22px; font-weight: 600; }
-  .header .sub { font-size: 13px; opacity: 0.7; margin-top: 3px; }
-  .badge { background: #e63946; color: white; font-size: 11px; padding: 3px 8px; border-radius: 12px; font-weight: 600; }
-  .container { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
-  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  @media(max-width:700px){ .grid { grid-template-columns: 1fr; } }
-  .card { background: white; border-radius: 12px; padding: 22px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
-  .card h2 { font-size: 14px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-  .card h2::before { content: ''; display: inline-block; width: 4px; height: 16px; background: #e63946; border-radius: 2px; }
-  label { display: block; font-size: 13px; color: #666; margin-bottom: 5px; margin-top: 14px; font-weight: 500; }
-  label:first-of-type { margin-top: 0; }
-  input[type=number], select { width: 100%; padding: 9px 12px; border: 1.5px solid #e0e0e0; border-radius: 8px; font-size: 14px; transition: border 0.2s; outline: none; background: white; }
-  input[type=number]:focus, select:focus { border-color: #e63946; }
-  .checkbox-group { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
-  .checkbox-item { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; padding: 10px; border-radius: 8px; border: 1.5px solid #e8e8e8; transition: all 0.2s; }
-  .checkbox-item:hover { border-color: #e63946; background: #fff5f5; }
-  .checkbox-item.checked { border-color: #e63946; background: #fff5f5; }
-  .checkbox-item input { width: 16px; height: 16px; accent-color: #e63946; flex-shrink: 0; margin-top: 2px; }
-  .checkbox-item .label-text { font-size: 13px; font-weight: 500; }
-  .checkbox-item .label-desc { font-size: 11px; color: #999; margin-top: 2px; }
-  .btn-calc { width: 100%; padding: 14px; background: linear-gradient(135deg, #e63946, #c1121f); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; transition: transform 0.1s, box-shadow 0.2s; box-shadow: 0 4px 15px rgba(230,57,70,0.3); margin-top: 20px; letter-spacing: 0.3px; }
-  .btn-calc:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(230,57,70,0.4); }
-  .btn-calc:active { transform: translateY(0); }
-  .result-section { margin-top: 24px; }
-  .result-card { background: white; border-radius: 12px; padding: 22px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
-  .result-card h2 { font-size: 14px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
-  .result-card h2::before { content: ''; display: inline-block; width: 4px; height: 16px; background: #2a9d8f; border-radius: 2px; }
-  .system-result { border: 1.5px solid #e8e8e8; border-radius: 10px; padding: 16px; margin-bottom: 14px; transition: border 0.2s; }
-  .system-result.best { border-color: #2a9d8f; background: linear-gradient(135deg, #f0faf9, #ffffff); }
-  .system-result .sys-name { font-size: 15px; font-weight: 700; color: #1a1a2e; display: flex; align-items: center; gap: 8px; }
-  .system-result .best-badge { background: #2a9d8f; color: white; font-size: 10px; padding: 2px 7px; border-radius: 10px; font-weight: 600; }
-  .system-result .sys-desc { font-size: 12px; color: #888; margin-top: 3px; }
-  .price-breakdown { margin-top: 12px; }
-  .price-row { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; color: #555; }
-  .price-row.total { font-weight: 700; font-size: 15px; color: #1a1a2e; border-top: 1.5px solid #e8e8e8; margin-top: 8px; padding-top: 10px; }
-  .price-row .euro { font-family: 'Courier New', monospace; }
-  .unavail { color: #ccc; font-style: italic; font-size: 13px; padding: 12px 0; }
-  .note { background: #fff8e1; border-left: 3px solid #ffc107; padding: 10px 14px; border-radius: 0 8px 8px 0; font-size: 12px; color: #666; margin-top: 14px; }
-  .info-box { background: #e8f4f8; border-radius: 8px; padding: 12px 16px; font-size: 12px; color: #555; margin-top: 10px; line-height: 1.6; }
-  .hidden { display: none !important; }
-  .error { color: #e63946; font-size: 13px; margin-top: 8px; padding: 8px 12px; background: #fff5f5; border-radius: 8px; border: 1px solid #fcc; }
-  select option:disabled { color: #ccc; }
-</style>
+<title>Elwido Pergola Calculator 2026</title>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
 <div class="header">
   <div>
-    <h1>🔧 Aluprof Pergola Calculator</h1>
+    <h1>🔧 Elwido Pergola Calculator</h1>
     <div class="sub">Прайс-лист 2026 · Цены в € без НДС</div>
   </div>
   <div class="badge">2026</div>
@@ -112,7 +66,7 @@
 
         <label>Цвет конструкции и лопастей</label>
         <select id="color">
-          <option value="standard">Стандарт Aluprof (включено)</option>
+          <option value="standard">Стандарт Elwido (включено)</option>
           <option value="ral">Цвет RAL вне палитры (+20%)</option>
           <option value="wood">Wood-like / дерево (+20%)</option>
         </select>
@@ -393,6 +347,7 @@ function getMultiModulePrice(firstTable, nextTable, totalWidth, projection, moun
     return { manualReason: 'Недостаточно инженерных данных для модульного расчёта (таблица модулей неполная).' };
   }
 
+function getMultiModulePrice(firstTable, nextTable, totalWidth, projection) {
   const maxSingleWidth = Math.max(...firstTable.widths);
   const maxNextWidth = Math.max(...nextTable.widths);
   const maxSupportedWidth = maxSingleWidth + (MAX_SUPPORTED_MODULES - 1) * maxNextWidth;
@@ -472,60 +427,6 @@ function getMultiModulePrice(firstTable, nextTable, totalWidth, projection, moun
 }
 
 // ============================================================
-// SURCHARGE CALCULATIONS
-// ============================================================
-function calcSurcharges(basePrice, height, mounting, color, drain, hiddenMotor, led, ledPts, teleco, system) {
-  let extra = 0;
-  let breakdown = [];
-
-  // Color
-  if (color === 'ral' || color === 'wood') {
-    const s = Math.round(basePrice * 0.2);
-    extra += s;
-    breakdown.push({label: color === 'ral' ? 'Надбавка RAL (+20%)' : 'Надбавка wood-like (+20%)', val: s});
-  }
-
-  // Drainage
-  if (drain) {
-    const s = Math.round(basePrice * 0.1);
-    extra += s;
-    breakdown.push({label: 'Дренаж в 1 стойку (+10%)', val: s});
-  }
-
-  // Hidden motor (SB400/SB400R only)
-  if (hiddenMotor && (system === 'sb400' || system === 'sb400r')) {
-    const s = Math.round(basePrice * 0.1);
-    extra += s;
-    breakdown.push({label: 'Скрытый мотор (+10%)', val: s});
-  }
-
-  // Height surcharge
-  let heightOk = true;
-  if ((system === 'sb400' || system === 'sb400r') && height > 2800 && height <= 3300) {
-    const s = mounting === 'free' ? 250 : 150;
-    extra += s;
-    heightOk = false;
-    breakdown.push({label: `Нестандартная высота (${height} мм) → +${s} €`, val: s});
-  }
-  if (system === 'solid' && height > 2500 && height <= 3000) {
-    const s = mounting === 'free' ? 250 : 150;
-    extra += s;
-    heightOk = false;
-    breakdown.push({label: `Нестандартная высота Solid (${height} мм) → +${s} €`, val: s});
-  }
-
-  // LED
-  if (led) { extra += 869; breakdown.push({label: 'LED базовый комплект', val: 869}); }
-  if (ledPts) {
-    const pts = getLedPoints(0, 0); // will be called outside
-    // placeholder — will be handled in main calc
-  }
-  if (teleco) { extra += 709; breakdown.push({label: 'Контроллер Teleco', val: 709}); }
-
-  return {extra, breakdown, heightOk};
-}
-
-// ============================================================
 // FORMAT
 // ============================================================
 const fmt = n => n.toLocaleString('ru-RU') + ' €';
@@ -546,6 +447,13 @@ function calculate() {
   const teleco = document.getElementById('opt-teleco').checked;
   const hiddenMotor = document.getElementById('sb400motor').value === 'hidden';
 
+  if (Number.isNaN(width) || Number.isNaN(projection) || Number.isNaN(height)) {
+    const div = document.getElementById('results');
+    div.style.display = 'block';
+    div.innerHTML = `<div class="result-card"><div class="error">❌ Заполните корректно поля: ширина, вынос и высота (только числа).</div></div>`;
+    return;
+  }
+
   const results = [];
 
   // Determine which systems to calculate
@@ -558,11 +466,13 @@ function calculate() {
     if (result) results.push(result);
   }
 
-  // Sort by total price
-  results.sort((a,b) => a.totalFinal - b.totalFinal);
-  if (results.length > 0) results[0].isBest = true;
+  const availableResults = results.filter(r => !r.unavail);
+  const unavailableResults = results.filter(r => r.unavail);
 
-  renderResults(results, width, projection, height, mounting);
+  availableResults.sort((a,b) => a.totalFinal - b.totalFinal);
+  if (availableResults.length > 0) availableResults[0].isBest = true;
+
+  renderResults([...availableResults, ...unavailableResults], width, projection, height, mounting);
 }
 
 function calcSystem(sys, width, projection, height, mounting, color, drain, led, ledPts, teleco, hiddenMotor) {
@@ -600,6 +510,7 @@ function calcSystem(sys, width, projection, height, mounting, color, drain, led,
     const nextTbl = mounting === 'free' ? SB550_FREE_NEXT : SB550_WALL_NEXT;
     moduleResult = getMultiModulePrice(firstTbl, nextTbl, width, projection, mounting);
     if (moduleResult?.manualReason) return {system: sys, name: 'SB 550', unavail: moduleResult.manualReason};
+    moduleResult = getMultiModulePrice(firstTbl, nextTbl, width, projection);
     if (!moduleResult) return {system: sys, name: 'SB 550', unavail: `Размер вне диапазона SB550`};
     sysName = 'SB 550';
     sysDesc = `Лопасти премиум класса · Модульная ширина (до 3 модулей / ${moduleResult.maxSupportedWidth} мм) · Вынос до 6980 мм`;
@@ -608,14 +519,12 @@ function calcSystem(sys, width, projection, height, mounting, color, drain, led,
 
   else if (sys === 'sb450') {
     if (width > 4000) return {system: sys, name: 'SB 450', unavail: `Макс. ширина SB450: 4000 мм`};
-    if (projection > 6010) return {system: sys, name: 'SB 450', unavail: `Макс. вынос SB450: 6010 мм (запрошено ${projection} мм)`};
-    // Use SB450 F blade table (standard)
-    const SB450_ROWS_FREE = {1930:5327,2134:5523,2338:5720,2542:5919,2746:6118,2950:6314,3154:6514,3358:6710,3562:6912,3766:7109,3970:7305,4174:7504,4378:7703,4582:7902,4786:8096,4990:8295,5194:8497,5398:9232,5602:9428,5806:9628,6010:9827};
-    // This is for W=3000, need full table for lookups
-    // Simplified: use nearest known
-    const W3000_F = {1930:6928,2134:7125,2338:7321,2542:7520,2746:7719,2950:7919,3154:8115,3358:8311,3562:8597,3766:8882,3970:9157,4174:9431,4378:9716,4582:10002,4786:10276,4990:10551,5194:10847,5398:11646,5602:11923,5806:12284,6010:12558};
-    // Full table needed - approximating via ratio
-    return {system: sys, name: 'SB 450', unavail: `SB450 поддерживает вынос до 6010 мм. Для ${projection} мм — недоступно.`};
+    if (projection < 1930 || projection > 6010) return {system: sys, name: 'SB 450', unavail: `Вынос SB450: 1930–6010 мм (запрошено ${projection} мм)`};
+    return {
+      system: sys,
+      name: 'SB 450',
+      unavail: 'В текущем файле нет полной таблицы цен SB450 (есть только фрагменты), поэтому корректный автоматический расчёт невозможен.'
+    };
   }
 
   else if (sys === 'solid') {
@@ -627,6 +536,7 @@ function calcSystem(sys, width, projection, height, mounting, color, drain, led,
     const nextTbl = mounting === 'free' ? SOLID_FREE_NEXT : SOLID_WALL_NEXT;
     moduleResult = getMultiModulePrice(firstTbl, nextTbl, width, projection, mounting);
     if (moduleResult?.manualReason) return {system: sys, name: 'Solid', unavail: moduleResult.manualReason};
+    moduleResult = getMultiModulePrice(firstTbl, nextTbl, width, projection);
     if (!moduleResult) return {system: sys, name: 'Solid', unavail: 'Размер вне диапазона Solid'};
     sysName = 'Solid';
     sysDesc = `Тканевая кровля Serge Ferrari · Somfy io управление · До 3 модулей / ${moduleResult.maxSupportedWidth} мм`;
@@ -695,6 +605,27 @@ function calcSystem(sys, width, projection, height, mounting, color, drain, led,
     }
   }
   if (teleco) { extra += 709; surcharges.push({label:'Контроллер Teleco (1 шт. на всю конструкцию)', val:709}); }
+  const additionalModuleCount = Math.max(0, moduleResult.modules.length - 1);
+  const additionalOptionsQty = additionalModuleCount > 0 ? additionalModuleCount : 1;
+  const additionalOptionsLabel = additionalOptionsQty > 1 ? ` × ${additionalOptionsQty}` : '';
+
+  // LED / Teleco as additional options (per additional module when modules > 1)
+  if (led) {
+    const s = 869 * additionalOptionsQty;
+    extra += s;
+    surcharges.push({label:`LED базовый комплект${additionalOptionsLabel}`, val:s});
+  }
+  if (ledPts) {
+    const pts = getLedPoints(width, projection);
+    const s = pts.price * additionalOptionsQty;
+    extra += s;
+    surcharges.push({label:`LED световые точки (${pts.count})${additionalOptionsLabel}`, val:s});
+  }
+  if (teleco) {
+    const s = 709 * additionalOptionsQty;
+    extra += s;
+    surcharges.push({label:`Контроллер Teleco${additionalOptionsLabel}`, val:s});
+  }
 
   const totalFinal = base + extra;
 
@@ -752,11 +683,15 @@ function renderResults(results, width, projection, height, mounting) {
 }
 
 // Show/hide hidden motor option based on system selection
-document.getElementById('system').addEventListener('change', function() {
+function updateSb400MotorVisibility() {
+  const systemSelect = document.getElementById('system');
   const row = document.getElementById('sb400-motor-row');
-  const showMotor = this.value === 'sb400' || this.value === 'sb400r' || this.value === 'auto';
+  const showMotor = systemSelect.value === 'sb400' || systemSelect.value === 'sb400r' || systemSelect.value === 'auto';
   row.classList.toggle('hidden', !showMotor);
-});
+}
+
+document.getElementById('system').addEventListener('change', updateSb400MotorVisibility);
+updateSb400MotorVisibility();
 
 // Checkbox styling
 document.querySelectorAll('.checkbox-item input').forEach(cb => {
@@ -765,5 +700,7 @@ document.querySelectorAll('.checkbox-item input').forEach(cb => {
   });
 });
 </script>
+<script src="price-data.js"></script>
+<script src="calculator.js"></script>
 </body>
 </html>
