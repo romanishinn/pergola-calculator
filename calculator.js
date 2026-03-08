@@ -289,11 +289,22 @@ function calcSystem(sys, width, projection, height, mounting, color, drain, led,
   }
 
   // LED
-  if (led) { extra += 869; surcharges.push({label:'LED базовый комплект', val:869}); }
+  const moduleCount = moduleResult.modules.length;
+  if (led) {
+    const s = 869 * moduleCount;
+    extra += s;
+    surcharges.push({label:`LED базовый комплект × ${moduleCount} модуль`, val:s});
+  }
   if (ledPts) {
-    const pts = getLedPoints(width, projection);
-    extra += pts.price;
-    surcharges.push({label:`LED световые точки (${pts.count})`, val:pts.price});
+    let ptsTotal = 0;
+    const ptsParts = [];
+    for (const m of moduleResult.modules) {
+      const pts = getLedPoints(m.width, m.proj);
+      ptsTotal += pts.price;
+      ptsParts.push(pts.count);
+    }
+    extra += ptsTotal;
+    surcharges.push({label:`LED световые точки (${ptsParts.join(' + ')})`, val:ptsTotal});
   }
   if (teleco) { extra += 709; surcharges.push({label:'Контроллер Teleco', val:709}); }
 
