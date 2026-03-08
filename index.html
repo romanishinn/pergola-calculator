@@ -121,6 +121,525 @@
   <div class="result-section" id="results" style="display:none;"></div>
 </div>
 
+<script>
+// ============================================================
+// PRICE DATA
+// ============================================================
+
+// SB400 Freestanding: widths [1500,2000,2500,3000,3500,4000], projections 3400..7000 step 200
+const SB400_FREE = {
+  widths: [1500,2000,2500,3000,3500,4000],
+  rows: {
+    3400:[5648,6098,6548,6998,7447,7897],3600:[5815,6287,6759,7231,7704,8176],
+    3800:[5981,6477,6970,7465,7960,8454],4000:[6149,6666,7182,7699,8216,8733],
+    4200:[6315,6855,7393,7932,8472,9011],4400:[6481,7045,7604,8166,8728,9290],
+    4600:[6648,7235,7815,8400,8984,9568],4800:[6815,7425,8027,8633,9240,9847],
+    5000:[6981,7615,8238,8867,9496,10125],5200:[7148,7805,8450,9101,9752,10404],
+    5400:[7781,8458,9135,9812,10489,11165],5600:[7948,8647,9347,10046,10746,11445],
+    5800:[8114,8836,9560,10281,11002,11724],6000:[8281,9025,9772,10516,11260,12004],
+    6200:[8448,9214,9984,10750,11517,12283],6400:[8614,9402,10197,10985,11774,12562],
+    6600:[8780,9591,10409,11220,12031,12842],6800:[8947,9780,10621,11454,12288,13121],
+    7000:[9113,9969,10833,11689,12545,13401]
+  }
+};
+
+// SB400 Wall-mounted
+const SB400_WALL = {
+  widths: [1500,2000,2500,3000,3500,4000],
+  rows: {
+    3400:[5432,5882,6332,6782,7232,7682],3600:[5600,6071,6544,7016,7489,7961],
+    3800:[5766,6261,6755,7250,7744,8239],4000:[5933,6451,6966,7483,8001,8517],
+    4200:[6100,6640,7178,7717,8256,8796],4400:[6266,6830,7389,7951,8513,9074],
+    4600:[6433,7020,7600,8184,8769,9353],4800:[6599,7210,7812,8418,9025,9631],
+    5000:[6766,7400,8023,8652,9281,9910],5200:[6932,7590,8234,8886,9537,10188],
+    5400:[7566,8243,8920,9596,10273,10950],5600:[7732,8432,9132,9831,10530,11230],
+    5800:[7899,8621,9344,10066,10787,11509],6000:[8065,8809,9557,10300,11044,11788],
+    6200:[8232,8998,9769,10535,11301,12068],6400:[8399,9187,9981,10770,11559,12347],
+    6600:[8565,9376,10193,11004,11816,12627],6800:[8731,9565,10406,11239,12073,12906],
+    7000:[8898,9754,10618,11473,12330,13185]
+  }
+};
+
+// SB400R (freestanding/wall)
+const SB400R = {
+  widths: [1500,2000,2500,3000,3500,4000],
+  rows: {
+    3400:[5183,5633,6082,6532,6982,7432],3600:[5350,5822,6294,6766,7239,7711],
+    3800:[5516,6012,6505,7000,7494,7989],4000:[5683,6201,6717,7234,7751,8268],
+    4200:[5850,6391,6928,7467,8007,8546],4400:[6016,6581,7139,7701,8263,8825],
+    4600:[6183,6770,7351,7935,8519,9103],4800:[6350,6960,7562,8168,8775,9381],
+    5000:[6516,7150,7773,8402,9031,9660],5200:[6682,7340,7984,8636,9287,9939],
+    5400:[7317,7993,8670,9347,10023,10700],5600:[7483,8182,8882,9581,10280,10980],
+    5800:[7650,8371,9094,9816,10538,11259],6000:[7816,8560,9307,10050,10794,11539],
+    6200:[7983,8749,9519,10285,11052,11818],6400:[8149,8938,9731,10520,11309,12097],
+    6600:[8316,9126,9943,10754,11566,12377],6800:[8482,9315,10156,10989,11823,12656],
+    7000:[8649,9504,10368,11224,12080,12936]
+  }
+};
+
+// SB550 First module (free-standing)
+const SB550_FREE_FIRST = {
+  widths: [1500,2000,2500,3000,3500,4000,4500,5000],
+  rows: {
+    2580:[7127,7795,8460,9130,9797,10465,11135,11805],2780:[7378,8042,8712,9380,10053,10715,11377,12039],
+    2980:[7622,8293,8957,9628,10295,10960,11622,12287],3180:[7873,8538,9208,9872,10540,11210,11878,12548],
+    3380:[8118,8782,9450,10120,10788,11455,12120,12787],3580:[8371,9070,9773,10475,11178,11883,12585,13288],
+    3780:[8616,9353,10093,10833,11573,12313,13054,13794],3980:[8860,9636,10405,11175,11950,12720,13490,14259],
+    4180:[9111,9913,10718,11520,12327,13126,13928,14728],4380:[9358,10195,11038,11875,12717,13554,14391,15228],
+    4580:[9609,10478,11358,12233,13107,13982,14857,15731],4780:[9851,10758,11670,12575,13479,14389,15295,16205],
+    4980:[10099,11041,11980,12919,13856,14795,15734,16673],5180:[10351,11331,12308,13288,14267,15247,16224,17204],
+    5380:[11269,12289,13288,14286,15287,16286,17284,18283],5580:[11514,12556,13595,14633,15672,16714,17753,18791],
+    5780:[11764,12871,13977,15086,16192,17298,18404,19513],5980:[12012,13148,14292,15427,16569,17710,18848,19989],
+    6180:[12260,13361,14563,15726,16908,18008,19179,20422],6380:[12505,13627,14857,16044,17247,18369,19561,20834],
+    6580:[12750,13896,15145,16359,17583,18727,19946,21241],6780:[12994,14162,15438,16673,17925,19088,20328,21652],
+    6980:[13242,14431,15731,16988,18264,19451,20713,22061]
+  }
+};
+
+// SB550 Next module (free-standing)
+const SB550_FREE_NEXT = {
+  widths: [1500,2000,2500,3000,3500,4000,4500,5000],
+  rows: {
+    2580:[5843,6390,6936,7485,8031,8580,9130,9679],2780:[6048,6594,7143,7690,8241,8785,9329,9872],
+    2980:[6250,6799,7345,7894,8441,8987,9531,10074],3180:[6454,7001,7550,8096,8642,9191,9740,10290],
+    3380:[6656,7203,7749,8298,8847,9393,9940,10486],3580:[6863,7437,8013,8589,9167,9743,10319,10895],
+    3780:[7065,7668,8277,8882,9490,10096,10704,11310],3980:[7265,7900,8532,9165,9797,10430,11062,11692],
+    4180:[7469,8129,8788,9444,10107,10763,11420,12077],4380:[7674,8360,9051,9738,10427,11113,11800,12489],
+    4580:[7878,8591,9313,10029,10747,11463,12182,12898],4780:[8077,8820,9568,10311,11054,11797,12542,13288],
+    4980:[8282,9054,9824,10594,11361,12131,12900,13670],5180:[8486,9291,10093,10895,11700,12502,13304,14106],
+    5380:[9579,10446,11293,12144,12994,13842,14693,15541],5580:[9786,10672,11555,12437,13323,14206,15088,15974],
+    5780:[9999,10941,11880,12822,13761,14703,15643,16585],5980:[10211,11175,12147,13113,14082,15053,16022,16991],
+    6180:[10419,11358,12378,13369,14372,15306,16302,17360],6380:[10629,11584,12628,13638,14660,15613,16628,17710],
+    6580:[10836,11813,12873,13904,14946,15917,16953,18054],6780:[11046,12039,13121,14171,15236,16224,17279,18404],
+    6980:[11256,12268,13371,14440,15524,16533,17605,18751]
+  }
+};
+
+// SB550 Wall-mounted first
+const SB550_WALL_FIRST = {
+  widths: [1500,2000,2500,3000,3500,4000,4500,5000],
+  rows: {
+    2580:[6883,7551,8216,8886,9553,10221,10891,11561],2780:[7134,7799,8469,9136,9809,10471,11133,11795],
+    2980:[7379,8049,8713,9384,10051,10716,11378,12043],3180:[7629,8294,8964,9629,10296,10966,11634,12304],
+    3380:[7874,8539,9206,9876,10544,11211,11876,12543],3580:[8127,8827,9529,10231,10934,11639,12341,13044],
+    3780:[8372,9109,9849,10589,11330,12070,12810,13550],3980:[8617,9392,10161,10931,11706,12476,13246,14015],
+    4180:[8867,9669,10474,11276,12083,12882,13684,14484],4380:[9114,9951,10794,11631,12473,13310,14147,14984],
+    4580:[9365,10234,11114,11989,12863,13738,14613,15488],4780:[9607,10514,11426,12331,13235,14145,15051,15961],
+    4980:[9855,10797,11736,12675,13612,14551,15490,16430],5180:[10108,11087,12064,13044,14023,15003,15980,16960],
+    5380:[11025,12045,13044,14042,15043,16042,17040,18039],5580:[11270,12312,13351,14390,15428,16470,17509,18548],
+    5780:[11521,12627,13733,14842,15948,17054,18160,19269],5980:[11768,12904,14048,15183,16325,17466,18604,19745],
+    6180:[12016,13117,14320,15482,16664,17764,18935,20179],6380:[12261,13383,14613,15800,17003,18125,19317,20590],
+    6580:[12506,13652,14901,16115,17339,18483,19702,20997],6780:[12751,13919,15194,16430,17681,18844,20084,21409],
+    6980:[12998,14188,15488,16744,18020,19207,20469,21818]
+  }
+};
+
+// SB550 Wall-mounted next
+const SB550_WALL_NEXT = {
+  widths: [1500,2000,2500,3000,3500,4000,4500,5000],
+  rows: {
+    2580:[5600,6146,6692,7241,7788,8337,8886,9435],2780:[5804,6351,6900,7446,7998,8541,9085,9629],
+    2980:[6006,6555,7101,7651,8197,8743,9287,9830],3180:[6211,6757,7306,7852,8399,8948,9497,10046],
+    3380:[6412,6959,7505,8054,8603,9150,9696,10242],3580:[6620,7193,7769,8345,8923,9499,10075,10651],
+    3780:[6821,7424,8033,8638,9246,9852,10460,11066],3980:[7021,7656,8288,8921,9553,10186,10818,11448],
+    4180:[7225,7885,8544,9200,9863,10519,11176,11833],4380:[7430,8116,8808,9494,10183,10869,11556,12245],
+    4580:[7634,8348,9069,9785,10503,11219,11938,12654],4780:[7833,8576,9324,10067,10810,11553,12298,13044],
+    4980:[8038,8810,9580,10350,11117,11887,12656,13426],5180:[8242,9047,9849,10651,11456,12258,13060,13862],
+    5380:[9335,10202,11050,11900,12751,13598,14449,15297],5580:[9542,10428,11311,12193,13079,13962,14844,15730],
+    5780:[9755,10697,11636,12578,13518,14460,15399,16341],5980:[9968,10931,11903,12869,13838,14809,15778,16747],
+    6180:[10175,11114,12134,13125,14129,15062,16058,17116],6380:[10385,11340,12384,13394,14416,15369,16384,17466],
+    6580:[10592,11569,12629,13660,14702,15673,16710,17810],6780:[10802,11795,12877,13927,14992,15980,17035,18160],
+    6980:[11012,12024,13127,14196,15280,16290,17361,18507]
+  }
+};
+
+// Solid Freestanding first module
+const SOLID_FREE_FIRST = {
+  widths: [1500,2000,2500,3000,3500,4000],
+  rows: {
+    3000:[5823,6149,6476,6801,7128,7453],3500:[6136,6481,6826,7171,7516,7861],
+    4000:[6450,6813,7177,7541,7904,8268],4500:[6763,7145,7528,7911,8293,8675],
+    5000:[7076,7477,7879,8280,8682,9083],5500:[7390,7810,8230,8650,9070,9490],
+    6000:[7703,8141,8580,9020,9459,9897],6500:[8108,8566,9023,9482,9939,10396],
+    7000:[8514,8990,9466,9943,10420,10896]
+  }
+};
+
+// Solid Freestanding next module
+const SOLID_FREE_NEXT = {
+  widths: [1500,2000,2500,3000,3500,4000],
+  rows: {
+    3000:[5042,5349,5655,5962,6268,6575],3500:[5321,5646,5971,6297,6622,6948],
+    4000:[5599,5944,6288,6632,6976,7321],4500:[5878,6241,6604,6968,7331,7694],
+    5000:[6157,6539,6921,7303,7685,8067],5500:[6436,6836,7238,7638,8039,8440],
+    6000:[6714,7134,7554,7974,8393,8813],6500:[6993,7431,7870,8308,8746,9185],
+    7000:[7363,7820,8279,8735,9192,9650]
+  }
+};
+
+// Solid Wall-mounted first
+const SOLID_WALL_FIRST = {
+  widths: [1500,2000,2500,3000,3500,4000],
+  rows: {
+    3000:[4450,4708,4965,5222,5480,5738],3500:[4694,4971,5247,5524,5800,6077],
+    4000:[4939,5234,5530,5825,6121,6416],4500:[5184,5498,5813,6126,6441,6755],
+    5000:[5429,5762,6095,6428,6761,7094],5500:[5674,6025,6378,6729,7081,7433],
+    6000:[5919,6289,6661,7031,7401,7773],6500:[6256,6645,7035,7424,7813,8204],
+    7000:[6592,7000,7410,7817,8225,8635]
+  }
+};
+
+// Solid Wall-mounted next
+const SOLID_WALL_NEXT = {
+  widths: [1500,2000,2500,3000,3500,4000],
+  rows: {
+    3000:[4284,4541,4799,5057,5315,5572],3500:[4529,4805,5082,5358,5635,5911],
+    4000:[4773,5069,5364,5660,5955,6250],4500:[5019,5333,5647,5961,6275,6589],
+    5000:[5263,5596,5929,6262,6595,6928],5500:[5508,5860,6211,6564,6915,7268],
+    6000:[5753,6124,6494,6865,7235,7607],6500:[6090,6479,6868,7259,7647,8038],
+    7000:[6427,6834,7242,7652,8059,8469]
+  }
+};
+
+// LED points price table
+function getLedPoints(width, projection) {
+  const w = width; const p = projection;
+  // 4 points base, 6 points larger
+  if (p <= 3590) {
+    return w <= 2740 ? {count:'4 точки', price: 824} : {count:'6 точек', price: 902};
+  } else if (p <= 5390) {
+    return w <= 2740 ? {count:'6 точек', price: 902} : {count:'9 точек', price: 1098};
+  } else {
+    return w <= 2740 ? {count:'8 точек', price: 1020} : {count:'12 точек', price: 1255};
+  }
+}
+
+// ============================================================
+// LOOKUP FUNCTIONS
+// ============================================================
+function getPrice(table, width, projection) {
+  const projKeys = Object.keys(table.rows).map(Number).sort((a,b)=>a-b);
+  const widthKeys = table.widths;
+
+  // Find nearest projection (round up to next step)
+  let projKey = null;
+  for (let k of projKeys) {
+    if (k >= projection) { projKey = k; break; }
+  }
+  if (!projKey) return null; // exceeds max
+
+  // Find nearest width (round up)
+  let wIdx = null;
+  for (let i = 0; i < widthKeys.length; i++) {
+    if (widthKeys[i] >= width) { wIdx = i; break; }
+  }
+  if (wIdx === null) return null; // exceeds max
+
+  return { price: table.rows[projKey][wIdx], projUsed: projKey, widthUsed: widthKeys[wIdx] };
+}
+
+// For SB550/Solid with multi-module: split width into first + remaining
+function getMultiModulePrice(firstTable, nextTable, totalWidth, projection) {
+  const maxSingleWidth = Math.max(...firstTable.widths);
+
+  if (totalWidth <= maxSingleWidth) {
+    const r = getPrice(firstTable, totalWidth, projection);
+    if (!r) return null;
+    return { total: r.price, modules: [{type:'Первый модуль', width: r.widthUsed, proj: r.projUsed, price: r.price}] };
+  }
+
+  // Multi-module: find best split
+  let bestCombo = null;
+  // Try first module widths and remainder
+  for (let fw of firstTable.widths.slice().reverse()) {
+    const rem = totalWidth - fw;
+    if (rem <= 0) continue;
+    const fr = getPrice(firstTable, fw, projection);
+    if (!fr) continue;
+    const nr = getPrice(nextTable, rem, projection);
+    if (!nr) continue;
+    const total = fr.price + nr.price;
+    if (!bestCombo || total < bestCombo.total) {
+      bestCombo = {
+        total,
+        modules: [
+          {type: 'Первый модуль', width: fr.widthUsed, proj: fr.projUsed, price: fr.price},
+          {type: 'Следующий модуль', width: nr.widthUsed, proj: nr.projUsed, price: nr.price}
+        ]
+      };
+    }
+  }
+
+  // Also check with 2 next modules scenario (first + next + next)
+  for (let fw of firstTable.widths) {
+    const rem1 = totalWidth - fw;
+    if (rem1 <= 0) continue;
+    // Try to split remainder into 2 modules
+    for (let nw1 of nextTable.widths.slice().reverse()) {
+      const rem2 = rem1 - nw1;
+      if (rem2 <= 0 || rem2 > Math.max(...nextTable.widths)) continue;
+      const fr = getPrice(firstTable, fw, projection);
+      if (!fr) continue;
+      const nr1 = getPrice(nextTable, nw1, projection);
+      if (!nr1) continue;
+      const nr2 = getPrice(nextTable, rem2, projection);
+      if (!nr2) continue;
+      const total = fr.price + nr1.price + nr2.price;
+      if (!bestCombo || total < bestCombo.total) {
+        bestCombo = {
+          total,
+          modules: [
+            {type: 'Первый модуль', width: fr.widthUsed, proj: fr.projUsed, price: fr.price},
+            {type: 'Следующий модуль 1', width: nr1.widthUsed, proj: nr1.projUsed, price: nr1.price},
+            {type: 'Следующий модуль 2', width: nr2.widthUsed, proj: nr2.projUsed, price: nr2.price}
+          ]
+        };
+      }
+    }
+  }
+
+  return bestCombo;
+}
+
+// ============================================================
+// FORMAT
+// ============================================================
+const fmt = n => n.toLocaleString('ru-RU') + ' €';
+
+// ============================================================
+// MAIN CALCULATE
+// ============================================================
+function calculate() {
+  const width = parseInt(document.getElementById('width').value);
+  const projection = parseInt(document.getElementById('projection').value);
+  const height = parseInt(document.getElementById('height').value);
+  const mounting = document.getElementById('mounting').value;
+  const systemSel = document.getElementById('system').value;
+  const color = document.getElementById('color').value;
+  const drain = document.getElementById('opt-drain').checked;
+  const led = document.getElementById('opt-led').checked;
+  const ledPts = document.getElementById('opt-led-pts').checked;
+  const teleco = document.getElementById('opt-teleco').checked;
+  const hiddenMotor = document.getElementById('sb400motor').value === 'hidden';
+
+  if (Number.isNaN(width) || Number.isNaN(projection) || Number.isNaN(height)) {
+    const div = document.getElementById('results');
+    div.style.display = 'block';
+    div.innerHTML = `<div class="result-card"><div class="error">❌ Заполните корректно поля: ширина, вынос и высота (только числа).</div></div>`;
+    return;
+  }
+
+  const results = [];
+
+  // Determine which systems to calculate
+  const systemsToCalc = systemSel === 'auto'
+    ? ['sb400', 'sb400r', 'sb550', 'sb450', 'solid']
+    : [systemSel];
+
+  for (const sys of systemsToCalc) {
+    let result = calcSystem(sys, width, projection, height, mounting, color, drain, led, ledPts, teleco, hiddenMotor);
+    if (result) results.push(result);
+  }
+
+  const availableResults = results.filter(r => !r.unavail);
+  const unavailableResults = results.filter(r => r.unavail);
+
+  availableResults.sort((a,b) => a.totalFinal - b.totalFinal);
+  if (availableResults.length > 0) availableResults[0].isBest = true;
+
+  renderResults([...availableResults, ...unavailableResults], width, projection, height, mounting);
+}
+
+function calcSystem(sys, width, projection, height, mounting, color, drain, led, ledPts, teleco, hiddenMotor) {
+  let moduleResult = null;
+  let sysName = '';
+  let sysDesc = '';
+  let notes = [];
+
+  if (sys === 'sb400') {
+    if (width > 4000) return {system: sys, name: 'SB 400', unavail: `Максимальная ширина SB400: 4000 мм (запрошено ${width} мм)`};
+    if (projection < 3400 || projection > 7000) return {system: sys, name: 'SB 400', unavail: `Вынос SB400: 3400–7000 мм (запрошено ${projection} мм)`};
+    const tbl = mounting === 'free' ? SB400_FREE : SB400_WALL;
+    const r = getPrice(tbl, width, projection);
+    if (!r) return {system: sys, name: 'SB 400', unavail: 'Размер вне таблицы'};
+    moduleResult = {total: r.price, modules: [{type: mounting==='free'?'Отдельностоящая':'Настенная', width: r.widthUsed, proj: r.projUsed, price: r.price}]};
+    sysName = 'SB 400';
+    sysDesc = 'Поворотные алюминиевые лопасти 200 мм · Вынос до 7000 мм';
+    if (height > 3300) notes.push('⚠️ Высота > 3300 мм: нестандарт, цена по запросу');
+  }
+
+  else if (sys === 'sb400r') {
+    if (width > 4000) return {system: sys, name: 'SB 400R', unavail: `Максимальная ширина SB400R: 4000 мм`};
+    if (projection < 3400 || projection > 7000) return {system: sys, name: 'SB 400R', unavail: `Вынос SB400R: 3400–7000 мм`};
+    const r = getPrice(SB400R, width, projection);
+    if (!r) return {system: sys, name: 'SB 400R', unavail: 'Размер вне таблицы'};
+    moduleResult = {total: r.price, modules: [{type: 'SB400R', width: r.widthUsed, proj: r.projUsed, price: r.price}]};
+    sysName = 'SB 400R';
+    sysDesc = 'Как SB400, но дренаж воды на сторону клиента (DN50) · 2 водостока';
+    notes.push('ℹ️ Настенное и отдельностоящее — единая таблица цен');
+  }
+
+  else if (sys === 'sb550') {
+    if (projection < 2580 || projection > 6980) return {system: sys, name: 'SB 550', unavail: `Вынос SB550: 2580–6980 мм (запрошено ${projection} мм)`};
+    const firstTbl = mounting === 'free' ? SB550_FREE_FIRST : SB550_WALL_FIRST;
+    const nextTbl = mounting === 'free' ? SB550_FREE_NEXT : SB550_WALL_NEXT;
+    moduleResult = getMultiModulePrice(firstTbl, nextTbl, width, projection);
+    if (!moduleResult) return {system: sys, name: 'SB 550', unavail: `Размер вне диапазона SB550`};
+    sysName = 'SB 550';
+    sysDesc = 'Лопасти премиум класса · Модульная ширина · Вынос до 6980 мм';
+    if (height > 3200) notes.push('⚠️ Высота > 3200 мм: надбавка 160 € за стойку');
+  }
+
+  else if (sys === 'sb450') {
+    if (width > 4000) return {system: sys, name: 'SB 450', unavail: `Макс. ширина SB450: 4000 мм`};
+    if (projection < 1930 || projection > 6010) return {system: sys, name: 'SB 450', unavail: `Вынос SB450: 1930–6010 мм (запрошено ${projection} мм)`};
+    return {
+      system: sys,
+      name: 'SB 450',
+      unavail: 'В текущем файле нет полной таблицы цен SB450 (есть только фрагменты), поэтому корректный автоматический расчёт невозможен.'
+    };
+  }
+
+  else if (sys === 'solid') {
+    if (width > 4000 && mounting !== 'free') {
+      // Multi-module
+    }
+    if (projection < 3000 || projection > 7000) return {system: sys, name: 'Solid', unavail: `Вынос Solid: 3000–7000 мм (запрошено ${projection} мм)`};
+    const firstTbl = mounting === 'free' ? SOLID_FREE_FIRST : SOLID_WALL_FIRST;
+    const nextTbl = mounting === 'free' ? SOLID_FREE_NEXT : SOLID_WALL_NEXT;
+    moduleResult = getMultiModulePrice(firstTbl, nextTbl, width, projection);
+    if (!moduleResult) return {system: sys, name: 'Solid', unavail: 'Размер вне диапазона Solid'};
+    sysName = 'Solid';
+    sysDesc = 'Тканевая кровля Serge Ferrari · Somfy io управление · Включает 5-кан. пульт';
+    notes.push('ℹ️ Включено: конструкция + ткань + Somfy io + пульт 5 каналов');
+    if (height > 3000) notes.push('⚠️ Высота > 3000 мм: нестандарт, цена по запросу');
+  }
+
+  if (!moduleResult) return null;
+
+  // Apply surcharges
+  const base = moduleResult.total;
+  let surcharges = [];
+  let extra = 0;
+
+  // Color
+  if (color === 'ral') { const s = Math.round(base * 0.20); extra += s; surcharges.push({label:'Цвет RAL (+20%)', val:s}); }
+  else if (color === 'wood') { const s = Math.round(base * 0.20); extra += s; surcharges.push({label:'Wood-like (+20%)', val:s}); }
+
+  // Drainage
+  if (drain) { const s = Math.round(base * 0.10); extra += s; surcharges.push({label:'Дренаж в 1 стойку (+10%)', val:s}); }
+
+  // Hidden motor
+  if (hiddenMotor && (sys === 'sb400' || sys === 'sb400r')) {
+    const s = Math.round(base * 0.10);
+    extra += s;
+    surcharges.push({label:'Скрытый мотор (+10%)', val:s});
+  }
+
+  // Height
+  if ((sys === 'sb400' || sys === 'sb400r') && height > 2800 && height <= 3300) {
+    const s = mounting === 'free' ? 250 : 150;
+    extra += s;
+    surcharges.push({label:`Нестандартная высота ${height} мм`, val:s});
+  }
+  if (sys === 'solid' && height > 2500 && height <= 3000) {
+    const s = mounting === 'free' ? 250 : 150;
+    extra += s;
+    surcharges.push({label:`Нестандартная высота Solid ${height} мм`, val:s});
+  }
+
+  const additionalModuleCount = Math.max(0, moduleResult.modules.length - 1);
+  const additionalOptionsQty = additionalModuleCount > 0 ? additionalModuleCount : 1;
+  const additionalOptionsLabel = additionalOptionsQty > 1 ? ` × ${additionalOptionsQty}` : '';
+
+  // LED / Teleco as additional options (per additional module when modules > 1)
+  if (led) {
+    const s = 869 * additionalOptionsQty;
+    extra += s;
+    surcharges.push({label:`LED базовый комплект${additionalOptionsLabel}`, val:s});
+  }
+  if (ledPts) {
+    const pts = getLedPoints(width, projection);
+    const s = pts.price * additionalOptionsQty;
+    extra += s;
+    surcharges.push({label:`LED световые точки (${pts.count})${additionalOptionsLabel}`, val:s});
+  }
+  if (teleco) {
+    const s = 709 * additionalOptionsQty;
+    extra += s;
+    surcharges.push({label:`Контроллер Teleco${additionalOptionsLabel}`, val:s});
+  }
+
+  const totalFinal = base + extra;
+
+  return {system: sys, name: sysName, desc: sysDesc, modules: moduleResult.modules,
+          base, surcharges, totalFinal, notes, isBest: false};
+}
+
+function renderResults(results, width, projection, height, mounting) {
+  const div = document.getElementById('results');
+  div.style.display = 'block';
+
+  if (results.length === 0) {
+    div.innerHTML = `<div class="result-card"><div class="error">❌ Нет подходящих систем для размера ${width}×${projection} мм. Проверьте размеры.</div></div>`;
+    return;
+  }
+
+  let html = `<div class="result-card">`;
+  html += `<h2>Результаты расчёта · ${width}×${projection} мм · ${mounting==='free'?'Отдельностоящая':'Настенная'} · h=${height} мм</h2>`;
+
+  for (const r of results) {
+    if (r.unavail) {
+      html += `<div class="system-result"><div class="sys-name">${r.name}</div><div class="unavail">⛔ Недоступно: ${r.unavail}</div></div>`;
+      continue;
+    }
+
+    html += `<div class="system-result ${r.isBest ? 'best' : ''}">`;
+    html += `<div class="sys-name">${r.name} ${r.isBest ? '<span class="best-badge">✓ ОПТИМАЛЬНО</span>' : ''}</div>`;
+    html += `<div class="sys-desc">${r.desc}</div>`;
+
+    html += `<div class="price-breakdown">`;
+    for (const m of r.modules) {
+      html += `<div class="price-row"><span>${m.type} (${m.width}×${m.proj} мм)</span><span class="euro">${fmt(m.price)}</span></div>`;
+    }
+    for (const s of r.surcharges) {
+      html += `<div class="price-row"><span>+ ${s.label}</span><span class="euro">${fmt(s.val)}</span></div>`;
+    }
+    html += `<div class="price-row total"><span>ИТОГО</span><span class="euro">${fmt(r.totalFinal)}</span></div>`;
+    html += `</div>`;
+
+    if (r.notes && r.notes.length > 0) {
+      html += `<div class="note">${r.notes.join('<br>')}</div>`;
+    }
+
+    html += `</div>`;
+  }
+
+  html += `<div class="note" style="margin-top:0;">📌 Все цены в € без НДС · Промежуточные стойки — по запросу (238–292 €) · LED световые точки можно добавить отдельно</div>`;
+  html += `</div>`;
+
+  div.innerHTML = html;
+  div.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// Show/hide hidden motor option based on system selection
+function updateSb400MotorVisibility() {
+  const systemSelect = document.getElementById('system');
+  const row = document.getElementById('sb400-motor-row');
+  const showMotor = systemSelect.value === 'sb400' || systemSelect.value === 'sb400r' || systemSelect.value === 'auto';
+  row.classList.toggle('hidden', !showMotor);
+}
+
+document.getElementById('system').addEventListener('change', updateSb400MotorVisibility);
+updateSb400MotorVisibility();
+
+// Checkbox styling
+document.querySelectorAll('.checkbox-item input').forEach(cb => {
+  cb.addEventListener('change', function() {
+    this.closest('.checkbox-item').classList.toggle('checked', this.checked);
+  });
+});
+</script>
 <script src="price-data.js"></script>
 <script src="calculator.js"></script>
 </body>
