@@ -386,12 +386,31 @@ function getPrice(table, width, projection) {
 
 // For SB550/Solid with multi-module: split width into first + remaining
 function getMultiModulePrice(firstTable, nextTable, totalWidth, projection, mounting) {
+  // Safety-first constraints: we explicitly support only up to 3 modules.
+  // If a width requires 4+ modules, we do not auto-calculate and ask for manual quote.
+  const MAX_SUPPORTED_MODULES = 3;
+  if (!firstTable?.widths?.length || !nextTable?.widths?.length) {
+    return { manualReason: 'Недостаточно инженерных данных для модульного расчёта (таблица модулей неполная).' };
+  }
+
   const maxSingleWidth = Math.max(...firstTable.widths);
+  const maxNextWidth = Math.max(...nextTable.widths);
+  const maxSupportedWidth = maxSingleWidth + (MAX_SUPPORTED_MODULES - 1) * maxNextWidth;
+
+  if (totalWidth > maxSupportedWidth) {
+    return {
+      manualReason: `Требуется 4+ модуля (запрошено ${totalWidth} мм, авто-лимит ${maxSupportedWidth} мм). Нужен ручной расчёт.`
+    };
+  }
 
   if (totalWidth <= maxSingleWidth) {
     const r = getPrice(firstTable, totalWidth, projection);
     if (!r) return null;
-    return { total: r.price, modules: [{type:'Первый модуль', width: r.widthUsed, proj: r.projUsed, price: r.price}] };
+    return {
+      total: r.price,
+      modules: [{type:'Первый модуль', width: r.widthUsed, proj: r.projUsed, price: r.price}],
+      maxSupportedWidth
+    };
   }
 
   // Multi-module: find best split
@@ -444,6 +463,11 @@ function getMultiModulePrice(firstTable, nextTable, totalWidth, projection, moun
     }
   }
 
+  if (!bestCombo) {
+    return { manualReason: 'Не удалось безопасно разложить ширину на 1–3 модуля по таблице. Нужен ручной расчёт.' };
+  }
+
+  bestCombo.maxSupportedWidth = maxSupportedWidth;
   return bestCombo;
 }
 
@@ -575,9 +599,10 @@ function calcSystem(sys, width, projection, height, mounting, color, drain, led,
     const firstTbl = mounting === 'free' ? SB550_FREE_FIRST : SB550_WALL_FIRST;
     const nextTbl = mounting === 'free' ? SB550_FREE_NEXT : SB550_WALL_NEXT;
     moduleResult = getMultiModulePrice(firstTbl, nextTbl, width, projection, mounting);
+    if (moduleResult?.manualReason) return {system: sys, name: 'SB 550', unavail: moduleResult.manualReason};
     if (!moduleResult) return {system: sys, name: 'SB 550', unavail: `Размер вне диапазона SB550`};
     sysName = 'SB 550';
-    sysDesc = 'Лопасти премиум класса · Модульная ширина · Вынос до 6980 мм';
+    sysDesc = `Лопасти премиум класса · Модульная ширина (до 3 модулей / ${moduleResult.maxSupportedWidth} мм) · Вынос до 6980 мм`;
     if (height > 3200) notes.push('⚠️ Высота > 3200 мм: надбавка 160 € за стойку');
   }
 
@@ -601,9 +626,10 @@ function calcSystem(sys, width, projection, height, mounting, color, drain, led,
     const firstTbl = mounting === 'free' ? SOLID_FREE_FIRST : SOLID_WALL_FIRST;
     const nextTbl = mounting === 'free' ? SOLID_FREE_NEXT : SOLID_WALL_NEXT;
     moduleResult = getMultiModulePrice(firstTbl, nextTbl, width, projection, mounting);
+    if (moduleResult?.manualReason) return {system: sys, name: 'Solid', unavail: moduleResult.manualReason};
     if (!moduleResult) return {system: sys, name: 'Solid', unavail: 'Размер вне диапазона Solid'};
     sysName = 'Solid';
-    sysDesc = 'Тканевая кровля Serge Ferrari · Somfy io управление · Включает 5-кан. пульт';
+    sysDesc = `Тканевая кровля Serge Ferrari · Somfy io управление · До 3 модулей / ${moduleResult.maxSupportedWidth} мм`;
     notes.push('ℹ️ Включено: конструкция + ткань + Somfy io + пульт 5 каналов');
     if (height > 3000) notes.push('⚠️ Высота > 3000 мм: нестандарт, цена по запросу');
   }
@@ -612,21 +638,24 @@ function calcSystem(sys, width, projection, height, mounting, color, drain, led,
 
   // Apply surcharges
   const base = moduleResult.total;
+  const moduleCount = moduleResult.modules.length;
+  const moduleSplit = moduleResult.modules.map(m => m.width).join(' + ');
   let surcharges = [];
   let extra = 0;
 
   // Color
-  if (color === 'ral') { const s = Math.round(base * 0.20); extra += s; surcharges.push({label:'Цвет RAL (+20%)', val:s}); }
-  else if (color === 'wood') { const s = Math.round(base * 0.20); extra += s; surcharges.push({label:'Wood-like (+20%)', val:s}); }
+  if (color === 'ral') { const s = Math.round(base * 0.20); extra += s; surcharges.push({label:'Цвет RAL (+20%, на всю конструкцию)', val:s}); }
+  else if (color === 'wood') { const s = Math.round(base * 0.20); extra += s; surcharges.push({label:'Цвет под дерево (+20%, на всю конструкцию)', val:s}); }
 
   // Drainage
-  if (drain) { const s = Math.round(base * 0.10); extra += s; surcharges.push({label:'Дренаж в 1 стойку (+10%)', val:s}); }
+  if (drain) { const s = Math.round(base * 0.10); extra += s; surcharges.push({label:'Дренаж в 1 стойку (+10%, на всю конструкцию)', val:s}); }
 
   // Hidden motor
   if (hiddenMotor && (sys === 'sb400' || sys === 'sb400r')) {
-    const s = Math.round(base * 0.10);
+    const perModuleBase = Math.round(base / moduleCount);
+    const s = Math.round(perModuleBase * 0.10) * moduleCount;
     extra += s;
-    surcharges.push({label:'Скрытый мотор (+10%)', val:s});
+    surcharges.push({label:`Скрытый мотор (+10% за модуль × ${moduleCount})`, val:s});
   }
 
   // Height
@@ -642,17 +671,34 @@ function calcSystem(sys, width, projection, height, mounting, color, drain, led,
   }
 
   // LED
-  if (led) { extra += 869; surcharges.push({label:'LED базовый комплект', val:869}); }
-  if (ledPts) {
-    const pts = getLedPoints(width, projection);
-    extra += pts.price;
-    surcharges.push({label:`LED световые точки (${pts.count})`, val:pts.price});
+  if (led) {
+    // Assumption: базовый LED-комплект модульный. Для 2–3 модулей применяем за каждый модуль,
+    // чтобы не недооценить стоимость при отсутствии отдельной инженерной матрицы.
+    const s = 869 * moduleCount;
+    extra += s;
+    surcharges.push({label:`LED базовый комплект (за модуль × ${moduleCount})`, val:s});
   }
-  if (teleco) { extra += 709; surcharges.push({label:'Контроллер Teleco', val:709}); }
+  if (ledPts) {
+    // Assumption: точки считаем по каждому модулю отдельно с текущей таблицей.
+    // Это безопасный fallback до получения точных инженерных правил для 2–3 модулей.
+    let ptsTotal = 0;
+    let ptsLabelParts = [];
+    for (const m of moduleResult.modules) {
+      const pts = getLedPoints(m.width, m.proj);
+      ptsTotal += pts.price;
+      ptsLabelParts.push(`${pts.count} для ${m.width}×${m.proj}`);
+    }
+    extra += ptsTotal;
+    surcharges.push({label:`LED световые точки (${ptsLabelParts.join('; ')})`, val:ptsTotal});
+    if (moduleCount > 1) {
+      notes.push('ℹ️ LED точки рассчитаны по каждому модулю отдельно (safe fallback без скрытых инженерных допущений).');
+    }
+  }
+  if (teleco) { extra += 709; surcharges.push({label:'Контроллер Teleco (1 шт. на всю конструкцию)', val:709}); }
 
   const totalFinal = base + extra;
 
-  return {system: sys, name: sysName, desc: sysDesc, modules: moduleResult.modules,
+  return {system: sys, name: sysName, desc: sysDesc, modules: moduleResult.modules, moduleCount, moduleSplit,
           base, surcharges, totalFinal, notes, isBest: false};
 }
 
@@ -677,6 +723,9 @@ function renderResults(results, width, projection, height, mounting) {
     html += `<div class="system-result ${r.isBest ? 'best' : ''}">`;
     html += `<div class="sys-name">${r.name} ${r.isBest ? '<span class="best-badge">✓ ОПТИМАЛЬНО</span>' : ''}</div>`;
     html += `<div class="sys-desc">${r.desc}</div>`;
+    if (r.moduleSplit) {
+      html += `<div class="sys-desc">Схема модулей: ${r.moduleSplit} мм (${r.moduleCount} шт.)</div>`;
+    }
 
     html += `<div class="price-breakdown">`;
     for (const m of r.modules) {
