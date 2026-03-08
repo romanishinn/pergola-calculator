@@ -50,12 +50,15 @@
           <option value="solid">Solid (ткань Serge Ferrari)</option>
         </select>
 
-        <div id="sb400-motor-row" class="hidden">
-          <label class="checkbox-item" id="lbl-hidden-motor">
+        <div id="sb400-motor-row" class="hidden motor-option-row">
+          <label class="checkbox-item motor-checkbox-item" id="lbl-hidden-motor">
             <input type="checkbox" id="opt-hidden-motor">
-            <div>
-              <div class="label-text">⚙️ Скрытый мотор в балке</div>
-              <div class="label-desc">Надбавка +10% к цене системы</div>
+            <div class="motor-label-body">
+              <div class="motor-label-title">Скрытый мотор в балке</div>
+              <div class="motor-label-meta">
+                <span class="motor-surcharge">+10% к цене системы</span>
+                <span id="motor-model-note" class="motor-model-note hidden">· только для SB 400 / SB 400R</span>
+              </div>
             </div>
           </label>
         </div>
@@ -132,62 +135,62 @@
       <table class="compare-table">
         <thead>
           <tr>
-            <th>Модель</th>
-            <th>Для чего подходит</th>
-            <th>Макс. ширина</th>
-            <th>Вынос (мм)</th>
-            <th>Отдельностоящая</th>
-            <th>Возле стены</th>
+            <th class="col-model">Модель</th>
+            <th class="col-desc">Для чего подходит</th>
+            <th class="col-num">Макс. ширина</th>
+            <th class="col-num">Вынос (мм)</th>
+            <th class="col-bool">Отдельно-<br>стоящая</th>
+            <th class="col-bool">Возле<br>стены</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td class="model-name">SB 550</td>
-            <td>Большие террасы, рестораны, гостиницы, коммерческие пространства. Премиальные лопасти, модульная конструкция до 3 секций.</td>
-            <td>до 15&nbsp;000 мм<br><small style="color:#aaa">(3 модуля по 5000)</small></td>
-            <td>2580–6980</td>
-            <td class="check">✓</td>
-            <td class="check">✓</td>
+            <td><span class="model-badge model-premium">SB 550</span></td>
+            <td class="desc-cell">Большие террасы, рестораны, гостиницы, коммерческие пространства. Премиальные лопасти, модульная конструкция до 3 секций.</td>
+            <td class="num-cell">до 15 000 мм<span class="cell-note">3 модуля по 5000</span></td>
+            <td class="num-cell">2580–6980</td>
+            <td class="bool-cell"><span class="badge-yes">Да</span></td>
+            <td class="bool-cell"><span class="badge-yes">Да</span></td>
           </tr>
           <tr>
-            <td class="model-name">SB 450</td>
-            <td>Частные дома, средние террасы, сады. Вынос до 6010 мм, шаг 204 мм.</td>
-            <td>до 3&nbsp;000 мм</td>
-            <td>1930–6010</td>
-            <td class="check">✓</td>
-            <td class="check">✓</td>
+            <td><span class="model-badge">SB 450</span></td>
+            <td class="desc-cell">Частные дома, средние террасы, сады. Вынос до 6010 мм, шаг 204 мм.</td>
+            <td class="num-cell">до 3 000 мм</td>
+            <td class="num-cell">1930–6010</td>
+            <td class="bool-cell"><span class="badge-yes">Да</span></td>
+            <td class="bool-cell"><span class="badge-yes">Да</span></td>
           </tr>
           <tr>
-            <td class="model-name">SB 400</td>
-            <td>Небольшие террасы, дворы, компактные зоны отдыха. Лопасти 200 мм, вынос до 7000 мм.</td>
-            <td>до 4&nbsp;000 мм</td>
-            <td>3400–7000</td>
-            <td class="check">✓</td>
-            <td class="check">✓</td>
+            <td><span class="model-badge">SB 400</span></td>
+            <td class="desc-cell">Небольшие террасы, дворы, компактные зоны отдыха. Лопасти 200 мм, вынос до 7000 мм.</td>
+            <td class="num-cell">до 4 000 мм</td>
+            <td class="num-cell">3400–7000</td>
+            <td class="bool-cell"><span class="badge-yes">Да</span></td>
+            <td class="bool-cell"><span class="badge-yes">Да</span></td>
           </tr>
           <tr>
-            <td class="model-name">SB 400R</td>
-            <td>Террасы, где важен хороший отвод дождевой воды. Дренаж DN50 на сторону клиента.</td>
-            <td>до 4&nbsp;000 мм</td>
-            <td>3400–7000</td>
-            <td class="check">✓</td>
-            <td class="check">✓</td>
+            <td><span class="model-badge model-drain">SB 400R</span></td>
+            <td class="desc-cell">Террасы, где важен хороший отвод дождевой воды. Дренаж DN50 на сторону клиента.</td>
+            <td class="num-cell">до 4 000 мм</td>
+            <td class="num-cell">3400–7000</td>
+            <td class="bool-cell"><span class="badge-yes">Да</span></td>
+            <td class="bool-cell"><span class="badge-yes">Да</span></td>
           </tr>
           <tr>
-            <td class="model-name">SB 350</td>
-            <td>Простые решения для небольших террас. Фиксированная ширина 3500 мм, высота 2500 мм.</td>
-            <td>3&nbsp;500 мм</td>
-            <td>3400–4750</td>
-            <td class="check">✓</td>
-            <td class="dash">—</td>
+            <td><span class="model-badge">SB 350</span></td>
+            <td class="desc-cell">Простые решения для небольших террас. Фиксированная ширина 3500 мм, высота 2500 мм.</td>
+            <td class="num-cell">3 500 мм<span class="cell-note">фиксированная</span></td>
+            <td class="num-cell">3400–4750</td>
+            <td class="bool-cell"><span class="badge-yes">Да</span></td>
+            <td class="bool-cell"><span class="badge-no">Нет</span></td>
           </tr>
           <tr>
-            <td class="model-name">SOLID</td>
-            <td>Полностью закрытая крыша без лопастей (ткань Serge Ferrari). Максимальная защита от дождя и солнца.</td>
-            <td>до 12&nbsp;000 мм<br><small style="color:#aaa">(3 модуля по 4000)</small></td>
-            <td>3000–7000</td>
-            <td class="check">✓</td>
-            <td class="check">✓</td>
+            <td><span class="model-badge model-solid">SOLID</span></td>
+            <td class="desc-cell">Полностью закрытая крыша без лопастей (ткань Serge Ferrari). Максимальная защита от дождя и солнца.</td>
+            <td class="num-cell">до 12 000 мм<span class="cell-note">3 модуля по 4000</span></td>
+            <td class="num-cell">3000–7000</td>
+            <td class="bool-cell"><span class="badge-yes">Да</span></td>
+            <td class="bool-cell"><span class="badge-yes">Да</span></td>
           </tr>
         </tbody>
       </table>

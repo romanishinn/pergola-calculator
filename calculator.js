@@ -425,9 +425,15 @@ function updateSystemDropdown() {
 // Show/hide hidden motor option based on system selection
 function updateSb400MotorVisibility() {
   const row = document.getElementById('sb400-motor-row');
+  const note = document.getElementById('motor-model-note');
   const val = document.getElementById('system').value;
-  const showMotor = val === 'sb400' || val === 'sb400r' || val === 'auto';
+  const isAuto = val === 'auto';
+  const showMotor = val === 'sb400' || val === 'sb400r' || isAuto;
   row.classList.toggle('hidden', !showMotor);
+  // Show clarification note only when "auto" is selected
+  if (note) note.classList.toggle('hidden', !isAuto);
+  // Uncheck motor if hidden
+  if (!showMotor) document.getElementById('opt-hidden-motor').checked = false;
 }
 
 document.getElementById('system').addEventListener('change', updateSb400MotorVisibility);
