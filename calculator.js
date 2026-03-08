@@ -160,6 +160,13 @@ function calculate() {
   const teleco = document.getElementById('opt-teleco').checked;
   const hiddenMotor = document.getElementById('sb400motor').value === 'hidden';
 
+  if (Number.isNaN(width) || Number.isNaN(projection) || Number.isNaN(height)) {
+    const div = document.getElementById('results');
+    div.style.display = 'block';
+    div.innerHTML = `<div class="result-card"><div class="error">❌ Заполните корректно поля: ширина, вынос и высота (только числа).</div></div>`;
+    return;
+  }
+
   const results = [];
 
   // Determine which systems to calculate
@@ -172,11 +179,13 @@ function calculate() {
     if (result) results.push(result);
   }
 
-  // Sort by total price
-  results.sort((a,b) => a.totalFinal - b.totalFinal);
-  if (results.length > 0) results[0].isBest = true;
+  const availableResults = results.filter(r => !r.unavail);
+  const unavailableResults = results.filter(r => r.unavail);
 
-  renderResults(results, width, projection, height, mounting);
+  availableResults.sort((a, b) => a.totalFinal - b.totalFinal);
+  if (availableResults.length > 0) availableResults[0].isBest = true;
+
+  renderResults([...availableResults, ...unavailableResults], width, projection, height, mounting);
 }
 
 function calcSystem(sys, width, projection, height, mounting, color, drain, led, ledPts, teleco, hiddenMotor) {
@@ -193,7 +202,7 @@ function calcSystem(sys, width, projection, height, mounting, color, drain, led,
     if (!r) return {system: sys, name: 'SB 400', unavail: 'Размер вне таблицы'};
     moduleResult = {total: r.price, modules: [{type: mounting==='free'?'Отдельностоящая':'Настенная', width: r.widthUsed, proj: r.projUsed, price: r.price}]};
     sysName = 'SB 400';
-    sysDesc = 'Поворотные алюминиевые лопасти 200 мм · Вынос до 7000 мм';
+    sysDesc = 'Стандартная биоклиматическая пергола · ламели 200 мм · вынос до 7000 мм';
     if (height > 3300) notes.push('⚠️ Высота > 3300 мм: нестандарт, цена по запросу');
   }
 
@@ -204,7 +213,7 @@ function calcSystem(sys, width, projection, height, mounting, color, drain, led,
     if (!r) return {system: sys, name: 'SB 400R', unavail: 'Размер вне таблицы'};
     moduleResult = {total: r.price, modules: [{type: 'SB400R', width: r.widthUsed, proj: r.projUsed, price: r.price}]};
     sysName = 'SB 400R';
-    sysDesc = 'Как SB400, но дренаж воды на сторону клиента (DN50) · 2 водостока';
+    sysDesc = 'SB400 с боковым дренажом воды DN50 · 2 водостока';
     notes.push('ℹ️ Настенное и отдельностоящее — единая таблица цен');
   }
 
@@ -215,7 +224,7 @@ function calcSystem(sys, width, projection, height, mounting, color, drain, led,
     moduleResult = getMultiModulePrice(firstTbl, nextTbl, width, projection, mounting);
     if (!moduleResult) return {system: sys, name: 'SB 550', unavail: `Размер вне диапазона SB550`};
     sysName = 'SB 550';
-    sysDesc = 'Лопасти премиум класса · Модульная ширина · Вынос до 6980 мм';
+    sysDesc = 'Премиальная система · большие пролёты · модульная конструкция';
     if (height > 3200) notes.push('⚠️ Высота > 3200 мм: надбавка 160 € за стойку');
   }
 
@@ -241,7 +250,7 @@ function calcSystem(sys, width, projection, height, mounting, color, drain, led,
     moduleResult = getMultiModulePrice(firstTbl, nextTbl, width, projection, mounting);
     if (!moduleResult) return {system: sys, name: 'Solid', unavail: 'Размер вне диапазона Solid'};
     sysName = 'Solid';
-    sysDesc = 'Тканевая кровля Serge Ferrari · Somfy io управление · Включает 5-кан. пульт';
+    sysDesc = 'Фиксированная крыша без ламелей · максимальная защита от дождя';
     notes.push('ℹ️ Включено: конструкция + ткань + Somfy io + пульт 5 каналов');
     if (height > 3000) notes.push('⚠️ Высота > 3000 мм: нестандарт, цена по запросу');
   }
@@ -280,11 +289,22 @@ function calcSystem(sys, width, projection, height, mounting, color, drain, led,
   }
 
   // LED
-  if (led) { extra += 869; surcharges.push({label:'LED базовый комплект', val:869}); }
+  const moduleCount = moduleResult.modules.length;
+  if (led) {
+    const s = 869 * moduleCount;
+    extra += s;
+    surcharges.push({label:`LED базовый комплект × ${moduleCount} модуль`, val:s});
+  }
   if (ledPts) {
-    const pts = getLedPoints(width, projection);
-    extra += pts.price;
-    surcharges.push({label:`LED световые точки (${pts.count})`, val:pts.price});
+    let ptsTotal = 0;
+    const ptsParts = [];
+    for (const m of moduleResult.modules) {
+      const pts = getLedPoints(m.width, m.proj);
+      ptsTotal += pts.price;
+      ptsParts.push(pts.count);
+    }
+    extra += ptsTotal;
+    surcharges.push({label:`LED световые точки (${ptsParts.join(' + ')})`, val:ptsTotal});
   }
   if (teleco) { extra += 709; surcharges.push({label:'Контроллер Teleco', val:709}); }
 
@@ -341,11 +361,15 @@ function renderResults(results, width, projection, height, mounting) {
 }
 
 // Show/hide hidden motor option based on system selection
-document.getElementById('system').addEventListener('change', function() {
+function updateSb400MotorVisibility() {
   const row = document.getElementById('sb400-motor-row');
-  const showMotor = this.value === 'sb400' || this.value === 'sb400r' || this.value === 'auto';
+  const val = document.getElementById('system').value;
+  const showMotor = val === 'sb400' || val === 'sb400r' || val === 'auto';
   row.classList.toggle('hidden', !showMotor);
-});
+}
+
+document.getElementById('system').addEventListener('change', updateSb400MotorVisibility);
+updateSb400MotorVisibility();
 
 // Checkbox styling
 document.querySelectorAll('.checkbox-item input').forEach(cb => {
