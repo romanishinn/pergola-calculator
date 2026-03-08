@@ -51,11 +51,13 @@
         </select>
 
         <div id="sb400-motor-row" class="hidden">
-          <label>Вариант мотора (SB 400 / SB 400R)</label>
-          <select id="sb400motor">
-            <option value="visible">Мотор видимый (стандарт)</option>
-            <option value="hidden">Мотор скрытый в балке (+10%)</option>
-          </select>
+          <label class="checkbox-item" id="lbl-hidden-motor">
+            <input type="checkbox" id="opt-hidden-motor">
+            <div>
+              <div class="label-text">⚙️ Скрытый мотор в балке</div>
+              <div class="label-desc">Надбавка +10% к цене системы</div>
+            </div>
+          </label>
         </div>
       </div>
     </div>

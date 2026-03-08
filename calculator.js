@@ -158,7 +158,7 @@ function calculate() {
   const led = document.getElementById('opt-led').checked;
   const ledPts = document.getElementById('opt-led-pts').checked;
   const teleco = document.getElementById('opt-teleco').checked;
-  const hiddenMotor = document.getElementById('sb400motor').value === 'hidden';
+  const hiddenMotor = document.getElementById('opt-hidden-motor').checked;
 
   if (Number.isNaN(width) || Number.isNaN(projection) || Number.isNaN(height)) {
     const div = document.getElementById('results');
@@ -185,7 +185,7 @@ function calculate() {
   availableResults.sort((a, b) => a.totalFinal - b.totalFinal);
   if (availableResults.length > 0) availableResults[0].isBest = true;
 
-  renderResults([...availableResults, ...unavailableResults], width, projection, height, mounting);
+  renderResults(availableResults, width, projection, height, mounting);
 }
 
 function calcSystem(sys, width, projection, height, mounting, color, drain, led, ledPts, teleco, hiddenMotor) {
