@@ -43,6 +43,19 @@
   .hidden { display: none !important; }
   .error { color: #e63946; font-size: 13px; margin-top: 8px; padding: 8px 12px; background: #fff5f5; border-radius: 8px; border: 1px solid #fcc; }
   select option:disabled { color: #ccc; }
+  .compare-section { background: #1a1a2e; padding: 40px 0 48px; margin-top: 8px; }
+  .compare-title { color: #fff; font-size: 18px; font-weight: 700; margin-bottom: 24px; }
+  .compare-table-wrap { overflow-x: auto; }
+  .compare-table { width: 100%; border-collapse: collapse; color: #e0e0e0; font-size: 14px; }
+  .compare-table thead tr { border-bottom: 1.5px solid #3a3a5c; }
+  .compare-table th { text-align: left; padding: 12px 16px; font-size: 13px; font-weight: 700; color: #aaa; white-space: nowrap; }
+  .compare-table td { padding: 16px 16px; vertical-align: top; border-bottom: 1px solid #2a2a44; }
+  .compare-table tbody tr:last-child td { border-bottom: none; }
+  .compare-table tbody tr:hover td { background: rgba(255,255,255,0.04); }
+  .compare-table .model-name { font-weight: 700; color: #fff; white-space: nowrap; }
+  .compare-table .check { color: #fff; font-size: 16px; text-align: center; }
+  .compare-table .dash { color: #555; font-size: 16px; text-align: center; }
+  @media(max-width:600px){ .compare-table th, .compare-table td { padding: 10px 10px; font-size: 13px; } }
   .about-section { background: #fff; border-top: 1px solid #e8e8e8; padding: 40px 0 48px; margin-top: 8px; }
   .about-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
   @media(max-width:900px){ .about-grid { grid-template-columns: repeat(2, 1fr); } }
