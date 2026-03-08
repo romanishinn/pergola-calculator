@@ -191,6 +191,17 @@ const SB450_FREE = {
   }
 };
 
+// SB350 (ширина только 3500 мм, выносы 3400–4750 мм, высота 2500 мм)
+const SB350 = {
+  widths: [3500],
+  rows: {
+    3400: [6708],
+    3850: [7391],
+    4300: [7854],
+    4750: [8318]
+  }
+};
+
 // LED points price table
 function getLedPoints(width, projection) {
   const w = width; const p = projection;

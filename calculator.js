@@ -171,7 +171,7 @@ function calculate() {
 
   // Determine which systems to calculate
   const systemsToCalc = systemSel === 'auto'
-    ? ['sb400', 'sb400r', 'sb550', 'sb450', 'solid']
+    ? ['sb400', 'sb400r', 'sb550', 'sb450', 'sb350', 'solid']
     : [systemSel];
 
   for (const sys of systemsToCalc) {
@@ -237,6 +237,17 @@ function calcSystem(sys, width, projection, height, mounting, color, drain, led,
     sysName = 'SB 450';
     sysDesc = 'Биоклиматическая пергола с лопастями · вынос до 6010 мм · шаг 204 мм';
     if (mounting === 'wall') notes.push('ℹ️ SB450: настенный монтаж — уточните цену у менеджера');
+  }
+
+  else if (sys === 'sb350') {
+    if (width > 3500) return {system: sys, name: 'SB 350', unavail: `SB 350 выпускается только шириной 3500 мм (запрошено ${width} мм)`};
+    if (projection < 3400 || projection > 4750) return {system: sys, name: 'SB 350', unavail: `Вынос SB 350: 3400–4750 мм (запрошено ${projection} мм)`};
+    const r = getPrice(SB350, width, projection);
+    if (!r) return {system: sys, name: 'SB 350', unavail: 'Размер вне таблицы'};
+    moduleResult = {total: r.price, modules: [{type: mounting === 'free' ? 'Отдельностоящая' : 'Настенная', width: r.widthUsed, proj: r.projUsed, price: r.price}]};
+    sysName = 'SB 350';
+    sysDesc = 'Биоклиматическая пергола · ширина 3500 мм · вынос до 4750 мм · высота 2500 мм';
+    notes.push('ℹ️ Фиксированная высота 2500 мм · размеры не изменяются');
   }
 
   else if (sys === 'solid') {
