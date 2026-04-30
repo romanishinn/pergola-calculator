@@ -5,6 +5,7 @@
 
 /* ── Reset & base ─────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
 
 :root {
   --ink:    #0f0f0f;
@@ -33,26 +34,111 @@ body {
 .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
 
-/* ── Header ───────────────────────────────────────────── */
+/* ── Header / Nav ─────────────────────────────────────── */
 .header {
   background: var(--ink);
   color: var(--white);
-  padding: 18px 28px;
+  padding: 16px 28px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
-.header h1 {
-  font-size: 18px;
-  font-weight: 600;
-  letter-spacing: -0.2px;
+.header-logo {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--white);
+  letter-spacing: -0.3px;
 }
 .header .sub {
-  font-size: 12px;
-  color: rgba(255,255,255,0.5);
+  font-size: 11px;
+  color: rgba(255,255,255,0.45);
   margin-top: 2px;
 }
+.btn-header {
+  display: inline-block;
+  background: var(--accent);
+  color: var(--white);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 9px 20px;
+  border-radius: var(--r-sm);
+  text-decoration: none;
+  letter-spacing: 0.1px;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+  flex-shrink: 0;
+}
+.btn-header:hover { opacity: 0.88; }
+
+/* ── Hero ─────────────────────────────────────────────── */
+.hero {
+  background: var(--ink);
+  border-top: 1px solid rgba(255,255,255,0.07);
+  padding: 80px 20px 96px;
+  text-align: center;
+}
+.hero-content {
+  max-width: 640px;
+  margin: 0 auto;
+}
+.hero-badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.55);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 20px;
+  letter-spacing: 0.4px;
+  margin-bottom: 24px;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.hero-title {
+  font-size: 44px;
+  font-weight: 800;
+  color: var(--white);
+  line-height: 1.12;
+  letter-spacing: -0.8px;
+  margin-bottom: 20px;
+}
+.hero-sub {
+  font-size: 16px;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.65;
+  margin-bottom: 36px;
+  max-width: 520px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.btn-hero {
+  display: inline-block;
+  background: var(--accent);
+  color: var(--white);
+  font-size: 15px;
+  font-weight: 700;
+  padding: 15px 36px;
+  border-radius: var(--r-md);
+  text-decoration: none;
+  letter-spacing: 0.2px;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.btn-hero:hover  { opacity: 0.9; }
+.btn-hero:active { transform: scale(0.98); }
+
+@media (max-width: 560px) {
+  .header { padding: 14px 16px; }
+  .btn-header { font-size: 12px; padding: 8px 14px; }
+  .hero { padding: 52px 20px 64px; }
+  .hero-title { font-size: 30px; letter-spacing: -0.4px; }
+  .hero-sub { font-size: 14px; }
+  .btn-hero { padding: 13px 28px; font-size: 14px; }
+}
+
+/* ── Badge (year pill) ────────────────────────────────── */
 .badge {
   background: var(--accent);
   color: var(--white);
@@ -492,8 +578,6 @@ select option:disabled { color: var(--muted); }
 
 /* ── Mobile tweaks ────────────────────────────────────── */
 @media (max-width: 560px) {
-  .header { padding: 14px 18px; }
-  .header h1 { font-size: 16px; }
   .container { padding: 16px 12px; }
   .card, .compare-card, .result-card { padding: 18px 16px; }
   .compare-table th, .compare-table td { padding: 10px 10px; font-size: 12px; }
