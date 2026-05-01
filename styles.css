@@ -129,6 +129,28 @@ body {
 .btn-hero:hover  { opacity: 0.9; }
 .btn-hero:active { transform: scale(0.98); }
 
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+.btn-hero-secondary {
+  display: inline-block;
+  background: transparent;
+  color: rgba(255,255,255,0.7);
+  font-size: 15px;
+  font-weight: 600;
+  padding: 15px 36px;
+  border-radius: var(--r-md);
+  text-decoration: none;
+  letter-spacing: 0.2px;
+  border: 1.5px solid rgba(255,255,255,0.2);
+  transition: border-color 0.15s, color 0.15s;
+}
+.btn-hero-secondary:hover { border-color: rgba(255,255,255,0.5); color: var(--white); }
+
 @media (max-width: 560px) {
   .header { padding: 14px 16px; }
   .btn-header { font-size: 12px; padding: 8px 14px; }
