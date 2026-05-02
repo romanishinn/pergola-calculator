@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Калькулятор гибки Reynaers — Elwido</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,800&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0a0e14;
+    --ink-soft: #1a1f28;
+    --paper: #f7f5f0;
+    --paper-warm: #efece4;
+    --line: #d8d4c8;
+    --line-soft: #e8e4d8;
+    --accent: #c8431f;
+    --accent-soft: #e8a690;
+    --steel: #4a5568;
+    --muted: #7a7466;
+    --ok: #2d5f3f;
+    --warn: #b8521a;
+    --err: #8b2914;
+    --shadow-sm: 0 1px 2px rgba(10,14,20,.04);
+    --shadow-md: 0 2px 8px rgba(10,14,20,.06);
+    --font-display: 'Fraunces', Georgia, serif;
+    --font-body: 'Inter Tight', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font-body);
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.5;
+    font-feature-settings: "ss01", "cv01", "cv11";
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(circle at 1px 1px, rgba(10,14,20,0.025) 1px, transparent 0);
+    background-size: 4px 4px;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 32px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* ── Top nav ── */
+  .topnav {
+    background: var(--ink);
+    padding: 12px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .topnav-brand {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 17px;
+    color: var(--paper);
+    text-decoration: none;
+  }
+  .topnav-back {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: rgba(247,245,240,0.6);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.15s;
+  }
+  .topnav-back:hover { color: var(--paper); }
+  .topnav-back::before { content: '←'; }
+
+  /* ── Hero ── */
+  .hero {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 56px 0 48px;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid var(--accent);
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(200,67,31,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 32px;
+    align-items: end;
+    position: relative;
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent-soft);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(36px, 5vw, 56px);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+  }
+  h1 em {
+    font-style: italic;
+    font-weight: 800;
+    color: var(--accent-soft);
+  }
+
+  .hero-meta {
+    font-size: 14px;
+    color: rgba(247,245,240,0.6);
+    max-width: 540px;
+  }
+  .hero-meta strong { color: var(--paper); font-weight: 500; }
+
+  .formula-badge {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--paper);
+    border: 1px solid rgba(247,245,240,0.2);
+    padding: 14px 20px;
+    background: rgba(247,245,240,0.03);
+  }
+  .formula-badge .label {
+    font-size: 10px;
+    color: rgba(247,245,240,0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  /* ── Layout ── */
+  main { padding: 48px 0 96px; }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 40px;
+    align-items: start;
+  }
+
+  @media (max-width: 1024px) {
+    .layout { grid-template-columns: 1fr; }
+    .container { padding: 0 20px; }
+    .hero { padding: 40px 0 32px; }
+    .hero-grid { grid-template-columns: 1fr; }
+    .topnav { padding: 12px 20px; }
+  }
+
+  /* ── Panel ── */
+  .panel {
+    background: var(--paper-warm);
+    border: 1px solid var(--line);
+  }
+  .panel-header {
+    padding: 20px 28px 14px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .panel-title {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .panel-num {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+  .panel-body { padding: 24px 28px 28px; }
+
+  .field-group { display: grid; gap: 18px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field-full { grid-column: 1 / -1; }
+
+  label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink);
+    letter-spacing: 0.02em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  label .hint {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--muted);
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  select {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    padding: 11px 14px;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    color: var(--ink);
+    transition: border-color 0.15s, background 0.15s;
+    width: 100%;
+  }
+  input[type="text"]:focus,
+  input[type="number"]:focus,
+  select:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: #fff;
+  }
+  select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%237a7466' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+  }
+
+  /* ── Result card ── */
+  .result-card {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 32px;
+    position: sticky;
+    top: 60px;
+  }
+  .result-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(247,245,240,0.5);
+    margin-bottom: 8px;
+  }
+  .result-total {
+    font-family: var(--font-display);
+    font-size: 56px;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+  }
+  .result-total .currency {
+    color: var(--accent-soft);
+    font-style: italic;
+    font-weight: 400;
+    margin-left: 4px;
+  }
+  .result-sub {
+    font-size: 13px;
+    color: rgba(247,245,240,0.5);
+    margin-bottom: 28px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid rgba(247,245,240,0.12);
+  }
+
+  .breakdown { display: grid; gap: 14px; }
+  .breakdown-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 12px;
+    align-items: baseline;
+    font-size: 13px;
+  }
+  .breakdown-letter {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent-soft);
+    width: 16px;
+  }
+  .breakdown-name { color: rgba(247,245,240,0.7); }
+  .breakdown-value {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--paper);
+    font-weight: 500;
+  }
+  .breakdown-row.muted .breakdown-value { color: rgba(247,245,240,0.4); }
+
+  /* ── Checks ── */
+  .checks { margin-top: 32px; }
+  .check {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(247,245,240,0.1);
+    font-size: 13px;
+  }
+  .check:last-child { border-bottom: none; }
+  .check-icon {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .check.ok   .check-icon { background: var(--ok);   color: white; }
+  .check.warn .check-icon { background: var(--warn);  color: white; }
+  .check.err  .check-icon { background: var(--err);   color: white; }
+  .check.muted .check-icon { background: rgba(247,245,240,0.15); color: rgba(247,245,240,0.5); }
+  .check-text strong {
+    display: block;
+    font-weight: 500;
+    color: var(--paper);
+    margin-bottom: 2px;
+  }
+  .check-text span { color: rgba(247,245,240,0.5); font-size: 12px; }
+  .check.err .check-text strong  { color: #f4a090; }
+  .check.warn .check-text strong { color: #f0c090; }
+
+  /* ── Intermediate ── */
+  .intermediate {
+    margin-top: 32px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+  }
+  .intermediate-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--line);
+    background: var(--paper-warm);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+  }
+  .intermediate-header:hover { background: #ebe7da; }
+  .intermediate-title {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 600;
+  }
+  .toggle-icon {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--muted);
+    transition: transform 0.2s;
+  }
+  .intermediate.open .toggle-icon { transform: rotate(180deg); }
+  .intermediate-body { display: none; padding: 20px 24px; }
+  .intermediate.open .intermediate-body { display: block; }
+
+  .interm-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px 24px;
+  }
+  .interm-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--line-soft);
+    font-size: 13px;
+  }
+  .interm-item .name { color: var(--muted); }
+  .interm-item .value { font-family: var(--font-mono); font-weight: 500; color: var(--ink); }
+
+  /* ── Price editor ── */
+  .price-editor { margin-top: 56px; }
+  .section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--ink);
+  }
+  .section-head h2 {
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+  }
+  .section-head h2 em { font-style: italic; color: var(--accent); font-weight: 400; }
+  .section-head p { font-size: 13px; color: var(--muted); max-width: 420px; margin-top: 4px; }
+
+  .price-toolbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+
+  .btn {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 10px 18px;
+    border: 1px solid var(--ink);
+    background: var(--paper);
+    color: var(--ink);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn:hover { background: var(--ink); color: var(--paper); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: white; }
+  .btn.primary:hover { background: var(--ink); border-color: var(--ink); }
+  .btn.ghost { background: transparent; border-color: var(--line); color: var(--muted); }
+  .btn.ghost:hover { background: transparent; color: var(--ink); border-color: var(--ink); }
+
+  .filter-bar {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .price-table-wrap {
+    border: 1px solid var(--line);
+    background: var(--paper);
+    overflow: auto;
+    max-height: 560px;
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead { position: sticky; top: 0; background: var(--ink); color: var(--paper); z-index: 1; }
+  th {
+    padding: 12px 16px;
+    text-align: left;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 500;
+  }
+  th.num, td.num { text-align: right; }
+  tbody tr { border-bottom: 1px solid var(--line-soft); transition: background 0.1s; }
+  tbody tr:hover { background: var(--paper-warm); }
+  td { padding: 10px 16px; font-family: var(--font-mono); font-size: 12px; }
+  td.type { color: var(--muted); font-size: 11px; }
+  td.system { font-weight: 600; color: var(--accent); }
+
+  td input[type="number"] {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding: 6px 10px;
+    border: 1px solid transparent;
+    background: transparent;
+    text-align: right;
+    width: 100px;
+  }
+  td input[type="number"]:focus { border-color: var(--accent); background: white; outline: none; }
+
+  datalist { display: none; }
+
+  /* ── Footer ── */
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 28px 0;
+    margin-top: 80px;
+    color: var(--muted);
+    font-size: 12px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  footer .brand { font-family: var(--font-display); font-style: italic; color: var(--ink); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .animate { animation: fadeUp 0.4s ease-out backwards; }
+  .animate:nth-child(1) { animation-delay: 0.05s; }
+  .animate:nth-child(2) { animation-delay: 0.1s; }
+
+  @media print {
+    .topnav, .hero, .price-editor, .intermediate-header { display: none; }
+    body { background: white; }
+    .result-card { background: white; color: var(--ink); border: 2px solid var(--ink); }
+    .result-card .breakdown-name { color: var(--ink); }
+    .check-text strong { color: var(--ink) !important; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a href="index.html" class="topnav-brand">Elwido</a>
+  <a href="index.html" class="topnav-back">Калькулятор перголы</a>
+</nav>
+
+<header class="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div>
+        <div class="eyebrow">Elwido · Engineering · Bend Calculator</div>
+        <h1>Калькулятор гибки<br>профилей <em>Reynaers</em></h1>
+        <p class="hero-meta">
+          Расчёт цены гнутых алюминиевых профилей по официальной методике
+          <strong>Reynaers Polska, ред. 07-2023</strong>. Поддерживаются все системы:
+          CS59, CS59Pa, CS77, CI45, ECO, Masterline 8, SL38.
+        </p>
+      </div>
+      <div class="formula-badge">
+        <span class="label">Формула</span>
+        K = M + G + W + L
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+
+    <div class="layout">
+
+      <!-- ВВОД -->
+      <section class="panel animate">
+        <div class="panel-header">
+          <div class="panel-title">Параметры арки</div>
+          <div class="panel-num">01 / Ввод</div>
+        </div>
+
+        <div class="panel-body">
+          <div class="field-group">
+
+            <div class="field-row">
+              <div class="field">
+                <label>Геометрия <span class="hint">Shape</span></label>
+                <select id="geometry">
+                  <option value="halfcircle">Полукруг</option>
+                  <option value="circle">Круг (полное окно)</option>
+                  <option value="segment">Сегмент</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Радиус R <span class="hint">мм</span></label>
+                <input type="number" id="radius" value="800" min="0" step="10">
+              </div>
+            </div>
+
+            <div class="field-row" id="segment-fields" style="display:none">
+              <div class="field">
+                <label>Хорда B <span class="hint">мм · сегмент</span></label>
+                <input type="number" id="chord" value="0" min="0" step="10">
+              </div>
+              <div class="field">
+                <label>Стрела H <span class="hint">мм · сегмент</span></label>
+                <input type="number" id="sagitta" value="0" min="0" step="10">
+              </div>
+            </div>
+
+            <div class="field field-full">
+              <label>Профиль рамы <span class="hint">№ артикула</span></label>
+              <input type="text" id="profile-frame" list="profile-list" value="001.0136" placeholder="например, 001.0136">
+            </div>
+
+            <div class="field field-full">
+              <label>Профиль штапика (опц.) <span class="hint">пусто = без штапика</span></label>
+              <input type="text" id="profile-bead" list="profile-list" value="030.3608" placeholder="например, 030.3608">
+              <datalist id="profile-list"></datalist>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label>Покрытие <span class="hint">Coating</span></label>
+                <select id="color"></select>
+              </div>
+              <div class="field">
+                <label>Кол-во арок <span class="hint">одинаковых</span></label>
+                <input type="number" id="quantity" value="1" min="1" step="1">
+              </div>
+            </div>
+
+            <div class="field field-full">
+              <label>Угол гибки больше 180° (двойная арка)? <span class="hint">G × 2</span></label>
+              <select id="big-angle">
+                <option value="no">Нет</option>
+                <option value="yes">Да — двойная цена гибки</option>
+              </select>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ПРОМЕЖУТОЧНЫЕ -->
+        <div class="intermediate" id="intermediate">
+          <div class="intermediate-header" onclick="document.getElementById('intermediate').classList.toggle('open')">
+            <div class="intermediate-title">Промежуточные величины</div>
+            <span class="toggle-icon">▼</span>
+          </div>
+          <div class="intermediate-body">
+            <div class="interm-grid" id="interm-grid"></div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- РЕЗУЛЬТАТ -->
+      <aside>
+        <div class="result-card animate">
+          <div class="result-label">Итого K</div>
+          <div class="result-total"><span id="total-value">—</span><span class="currency">€</span></div>
+          <div class="result-sub">за <span id="total-arches">1</span> арку · без НДС</div>
+
+          <div class="breakdown">
+            <div class="breakdown-row">
+              <span class="breakdown-letter">M</span>
+              <span class="breakdown-name">Материал (mill finish)</span>
+              <span class="breakdown-value" id="bd-m">— €</span>
+            </div>
+            <div class="breakdown-row">
+              <span class="breakdown-letter">G</span>
+              <span class="breakdown-name">Гибка (база)</span>
+              <span class="breakdown-value" id="bd-g">— €</span>
+            </div>
+            <div class="breakdown-row" id="bd-surcharge-row" style="display:none">
+              <span class="breakdown-letter">+</span>
+              <span class="breakdown-name">Надбавка за комплект</span>
+              <span class="breakdown-value" id="bd-surcharge">— €</span>
+            </div>
+            <div class="breakdown-row muted">
+              <span class="breakdown-letter">W</span>
+              <span class="breakdown-name">Сварка (не предусм.)</span>
+              <span class="breakdown-value">0 €</span>
+            </div>
+            <div class="breakdown-row">
+              <span class="breakdown-letter">L</span>
+              <span class="breakdown-name">Покраска</span>
+              <span class="breakdown-value" id="bd-l">— €</span>
+            </div>
+          </div>
+
+          <div class="checks" id="checks"></div>
+        </div>
+      </aside>
+
+    </div>
+
+    <!-- ПРАЙС-РЕДАКТОР -->
+    <section class="price-editor">
+      <div class="section-head">
+        <div>
+          <h2>Прайс <em>профилей</em></h2>
+          <p>Заполни цены CM €/м (mill finish) и длину штанги. Данные сохраняются в браузере локально.</p>
+        </div>
+        <div class="price-toolbar">
+          <button class="btn ghost" onclick="exportPrices()">Экспорт JSON</button>
+          <button class="btn ghost" onclick="document.getElementById('import-file').click()">Импорт JSON</button>
+          <input type="file" id="import-file" accept=".json" style="display:none" onchange="importPrices(event)">
+          <button class="btn" onclick="resetPrices()">Сбросить</button>
+        </div>
+      </div>
+
+      <div class="filter-bar">
+        <input type="text" id="filter-search" placeholder="Поиск по номеру или системе...">
+        <select id="filter-type">
+          <option value="">Все типы</option>
+          <option value="frame">Рама/импост/створка</option>
+          <option value="door">Дверь</option>
+          <option value="bead">Штапик/доп.</option>
+          <option value="lprofile">L-профиль/труба</option>
+        </select>
+        <select id="filter-system">
+          <option value="">Все системы</option>
+        </select>
+      </div>
+
+      <div class="price-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Тип</th>
+              <th>Система</th>
+              <th>Профиль №</th>
+              <th class="num">CM, €/м</th>
+              <th class="num">Штанга, м</th>
+              <th class="num">Мин. R, мм</th>
+            </tr>
+          </thead>
+          <tbody id="price-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="container">
+    <footer>
+      <div>
+        Источник: <strong>Reynaers Polska — Manual Price Calculation of Profiles Bend, 07-2023</strong>
+      </div>
+      <div class="brand">Elwido · Engineering Tools</div>
+    </footer>
+  </div>
+</main>
+
+<script>
+/* ============================================================================
+   ДАННЫЕ (Reynaers Polska, 07-2023)
+   ============================================================================ */
+
+const MIN_RADII = {
+  "032.0025":450,"001.0102":400,"001.0113":600,"001.0114":1000,
+  "001.0120":800,"001.0125":900,"001.0136":280,"001.0183":450,
+  "001.0192":700,"016.0125":1200,"016.0136":400,"016.0183":850,
+  "008.0183":600,"008.0525":1100,"008.3102":400,"008.3113":600,
+  "008.3120":500,"008.3125":1100,"008.3136":400,"008.3183":450,
+  "008.3192":700,"008.3483":450,"003.0002":300,"003.0016":350,
+  "408.0102":400,"408.0113":500,"408.0120":500,"408.0125":800,
+  "408.0136":300,"408.0160":800,"408.0183":400,"408.0192":800,
+  "408.0283":400,"408.0902":500,
+  "403.0036":270,"403.0039":300,"403.0083":400,"403.0102":300,
+  "403.0136":300,"403.0183":400,"403.0192":600,"403.0202":300,
+  "403.0236":400,"403.0302":300,"403.0336":400,"403.0392":600,
+  "032.0898":800,"001.0869":1000,"001.0898":1000,"001.1014":1200,
+  "001.1026":1200,"016.0014":1500,"016.0026":1500,"016.0614":1300,
+  "016.0636":600,"016.0898":1000,"008.0016":1200,"008.0414":1000,
+  "008.0469":1000,"008.0598":1000,"008.1898":800,"008.2026":1000,
+  "408.0014":1200,"408.0026":1200,"408.0469":800,"408.0498":800,
+  "408.1334":1200,"403.0598":400,"403.1026":1000,"403.2014":1000,
+  "002.0678":300,"002.0679":300,"002.0680":300,"002.0681":300,
+  "002.0682":300,"004.3399":270,"030.3717":270,"032.0600":270,
+  "032.0601":270,"032.0603":270,"030.3705":300,"030.3709":300,
+  "032.0028":0,"032.0604":0,
+  "008.0226":300,"008.1029":500,"001.0201":270,
+  "030.1050":300,"030.1051":300,"030.3196":300,"030.3200":300,
+  "030.3606":300,"030.3607":300,"030.3608":300,"030.3609":300,
+  "030.3610":300,"030.3611":300,"030.3612":300,"030.3613":300,
+  "030.3614":300,"030.3615":300,"030.3616":300,"030.3626":300,
+  "030.3627":300,"030.3628":300,"030.3629":300,"030.3630":300,
+  "030.3631":300,"030.3632":300,"030.3634":300,
+  "130.3645":300,"130.3646":300,"408.0894":400,
+  "002.0609":300,"002.0673":300,"002.0674":300,"002.0675":300,
+  "002.0683":300,"002.0686":300,"002.0687":300,"002.0688":300,
+  "002.1676":300,"002.1677":300,"002.2704":300,
+  "403.0256":800,"403.0356":500,"403.0050":300,"403.0150":300,
+  "403.0703":300,"403.0603":300,
+  "0A5.0504":350,"0L2.0202":500,"0L4.0202":800,"0L5.0252":800,
+};
+
+const BENDING_PRICES = {
+  "004.3399":[19,26,null,null,null],
+  "032.0028":[19,26,null,null,null],
+  "032.0600":[19,26,null,null,null],
+  "032.0601":[19,26,null,null,null],
+  "032.0603":[19,26,null,null,null],
+  "032.0604":[19,26,null,null,null],
+  "032.0025":[56,78,96,115,137],
+  "032.0898":[93,130,167,null,null],
+  "001.0102":[67,89,null,null,null],
+  "001.0113":[67,89,111,134,null],
+  "001.0114":[74,104,130,148,null],
+  "001.0120":[74,104,130,148,null],
+  "001.0125":[74,104,130,148,null],
+  "001.0136":[56,78,96,115,null],
+  "001.0183":[67,93,111,134,null],
+  "001.0192":[74,null,null,null,null],
+  "001.0869":[93,111,null,null,null],
+  "001.0898":[93,111,null,null,null],
+  "001.1014":[93,null,null,null,null],
+  "001.1026":[93,null,null,null,null],
+  "016.0014":[111,null,null,null,null],
+  "016.0026":[111,null,null,null,null],
+  "016.0125":[93,130,null,null,null],
+  "016.0136":[67,93,111,null,null],
+  "016.0183":[74,99,130,null,null],
+  "016.0614":[111,null,null,null,null],
+  "016.0636":[67,93,null,null,null],
+  "016.0898":[93,130,null,null,null],
+  "008.0016":[93,130,null,null,null],
+  "008.3120":[74,99,126,148,null],
+  "008.0183":[67,93,111,134,148],
+  "008.0226":[22,30,null,null,null],
+  "008.0414":[93,130,null,null,null],
+  "008.0469":[93,130,167,null,null],
+  "008.0525":[74,99,126,148,167],
+  "008.0598":[93,130,167,null,null],
+  "008.1029":[19,26,null,null,null],
+  "008.1898":[93,130,167,null,null],
+  "008.2026":[93,null,null,null,null],
+  "008.3102":[67,93,null,null,null],
+  "008.3113":[67,93,111,134,null],
+  "008.3125":[74,99,126,148,null],
+  "008.3136":[56,78,96,115,137],
+  "008.3183":[67,93,111,134,148],
+  "008.3483":[93,130,null,null,null],
+  "008.3192":[74,null,null,null,null],
+  "003.0002":[56,null,null,null,null],
+  "003.0016":[56,78,96,115,null],
+  "030.3705":[26,null,null,null,null],
+  "030.3709":[26,null,null,null,null],
+  "030.3717":[30,null,null,null,null],
+  "001.0201":[30,null,null,null,null],
+  "030.1050":[19,26,null,null,null],
+  "030.1051":[19,26,null,null,null],
+  "030.3196":[22,null,null,null,null],
+  "030.3200":[19,26,null,null,null],
+  "030.3606":[26,null,null,null,null],
+  "030.3607":[22,26,null,null,null],
+  "030.3608":[19,26,null,null,null],
+  "030.3609":[19,26,null,null,null],
+  "030.3610":[19,26,null,null,null],
+  "030.3611":[19,26,null,null,null],
+  "030.3612":[19,26,null,null,null],
+  "030.3613":[19,26,null,null,null],
+  "030.3614":[19,26,null,null,null],
+  "030.3615":[22,26,null,null,null],
+  "030.3616":[22,26,null,null,null],
+  "030.3626":[30,null,null,null,null],
+  "030.3627":[30,null,null,null,null],
+  "030.3628":[30,null,null,null,null],
+  "030.3629":[30,null,null,null,null],
+  "030.3630":[30,null,null,null,null],
+  "030.3631":[30,null,null,null,null],
+  "030.3632":[30,null,null,null,null],
+  "030.3634":[30,null,null,null,null],
+  "130.3645":[26,null,null,null,null],
+  "130.3646":[26,null,null,null,null],
+  "408.0014":[104,null,null,null,null],
+  "408.0026":[104,null,null,null,null],
+  "408.0102":[74,null,null,null,null],
+  "408.0120":[74,104,134,null,null],
+  "408.0125":[93,117,141,null,null],
+  "408.0136":[56,78,96,115,null],
+  "408.0183":[67,89,111,134,null],
+  "408.0113":[74,104,134,null,null],
+  "408.1334":[104,null,null,null,null],
+  "408.0283":[67,89,111,134,null],
+  "408.0160":[93,117,141,null,null],
+  "408.0192":[93,null,null,null,null],
+  "408.0469":[93,130,null,null,null],
+  "408.0498":[93,130,null,null,null],
+  "408.0894":[56,78,96,115,null],
+  "408.0902":[93,null,null,null,null],
+  "002.0609":[19,26,null,null,null],
+  "002.0673":[19,26,null,null,null],
+  "002.0674":[19,26,null,null,null],
+  "002.0675":[19,26,null,null,null],
+  "002.0678":[19,26,null,null,null],
+  "002.0679":[19,26,null,null,null],
+  "002.0680":[19,26,null,null,null],
+  "002.0681":[19,26,null,null,null],
+  "002.0682":[19,26,null,null,null],
+  "002.0683":[19,26,null,null,null],
+  "002.0686":[22,26,null,null,null],
+  "002.0687":[19,26,null,null,null],
+  "002.0688":[22,26,null,null,null],
+  "002.1676":[26,null,null,null,null],
+  "002.1677":[26,null,null,null,null],
+  "002.2704":[22,30,null,null,null],
+  "403.0036":[56,78,96,null,null],
+  "403.0039":[56,78,96,null,null],
+  "403.0083":[74,104,134,null,null],
+  "403.0392":[93,null,null,null,null],
+  "403.0102":[67,null,null,null,null],
+  "403.0136":[56,78,96,null,null],
+  "403.0183":[74,104,134,null,null],
+  "403.0192":[93,null,null,null,null],
+  "403.0202":[67,null,null,null,null],
+  "403.0236":[56,78,96,null,null],
+  "403.0256":[74,111,null,null,null],
+  "403.0302":[67,null,null,null,null],
+  "403.0336":[74,104,134,null,null],
+  "403.0356":[74,104,134,null,null],
+  "403.0598":[74,104,null,null,null],
+  "403.1026":[93,null,null,null,null],
+  "403.2014":[93,111,null,null,null],
+  "0A5.0504":[56,78,96,null,null],
+  "0L2.0202":[26,37,56,null,null],
+  "0L4.0202":[37,56,74,null,null],
+  "0L5.0252":[56,78,96,null,null],
+  "403.0050":[19,26,null,null,null],
+  "403.0150":[19,26,null,null,null],
+  "403.0703":[19,26,null,null,null],
+  "403.0603":[19,26,null,null,null],
+};
+
+const CATALOG = [
+  ["frame","CI45","032.0025"],
+  ["frame","CS59","001.0102"],["frame","CS59","001.0113"],["frame","CS59","001.0114"],
+  ["frame","CS59","001.0120"],["frame","CS59","001.0125"],["frame","CS59","001.0136"],
+  ["frame","CS59","001.0183"],["frame","CS59","001.0192"],
+  ["frame","CS59Pa","016.0125"],["frame","CS59Pa","016.0136"],["frame","CS59Pa","016.0183"],
+  ["frame","CS77","008.0183"],["frame","CS77","008.0525"],["frame","CS77","008.3102"],
+  ["frame","CS77","008.3113"],["frame","CS77","008.3120"],["frame","CS77","008.3125"],
+  ["frame","CS77","008.3136"],["frame","CS77","008.3183"],["frame","CS77","008.3192"],
+  ["frame","CS77","008.3483"],
+  ["frame","ECO","003.0002"],["frame","ECO","003.0016"],
+  ["frame","ML8","408.0102"],["frame","ML8","408.0113"],["frame","ML8","408.0120"],
+  ["frame","ML8","408.0125"],["frame","ML8","408.0136"],["frame","ML8","408.0160"],
+  ["frame","ML8","408.0183"],["frame","ML8","408.0192"],["frame","ML8","408.0283"],
+  ["frame","ML8","408.0902"],
+  ["frame","SL38","403.0036"],["frame","SL38","403.0039"],["frame","SL38","403.0083"],
+  ["frame","SL38","403.0102"],["frame","SL38","403.0136"],["frame","SL38","403.0183"],
+  ["frame","SL38","403.0192"],["frame","SL38","403.0202"],["frame","SL38","403.0236"],
+  ["frame","SL38","403.0302"],["frame","SL38","403.0336"],["frame","SL38","403.0392"],
+  ["door","CI45","032.0898"],
+  ["door","CS59","001.0869"],["door","CS59","001.0898"],["door","CS59","001.1014"],["door","CS59","001.1026"],
+  ["door","CS59Pa","016.0014"],["door","CS59Pa","016.0026"],["door","CS59Pa","016.0614"],
+  ["door","CS59Pa","016.0636"],["door","CS59Pa","016.0898"],
+  ["door","CS77","008.0016"],["door","CS77","008.0414"],["door","CS77","008.0469"],
+  ["door","CS77","008.0598"],["door","CS77","008.1898"],["door","CS77","008.2026"],
+  ["door","ML8","408.0014"],["door","ML8","408.0026"],["door","ML8","408.0469"],
+  ["door","ML8","408.0498"],["door","ML8","408.1334"],
+  ["door","SL38","403.0598"],["door","SL38","403.1026"],["door","SL38","403.2014"],
+  ["bead","GENERAL","002.0678"],["bead","GENERAL","002.0679"],["bead","GENERAL","002.0680"],
+  ["bead","GENERAL","002.0681"],["bead","GENERAL","002.0682"],
+  ["bead","CI45","004.3399"],
+  ["bead","ECO","030.3717"],["bead","ECO","030.3705"],["bead","ECO","030.3709"],
+  ["bead","CI45","032.0600"],["bead","CI45","032.0601"],["bead","CI45","032.0603"],
+  ["bead","CI45","032.0028"],["bead","CI45","032.0604"],
+  ["bead","CS77","008.0226"],["bead","CS77","008.1029"],
+  ["bead","CS59","001.0201"],
+  ["bead","GENERAL","030.1050"],["bead","GENERAL","030.1051"],
+  ["bead","GENERAL","030.3196"],["bead","GENERAL","030.3200"],
+  ["bead","GENERAL","030.3606"],["bead","GENERAL","030.3607"],
+  ["bead","GENERAL","030.3608"],["bead","GENERAL","030.3609"],
+  ["bead","GENERAL","030.3610"],["bead","GENERAL","030.3611"],
+  ["bead","GENERAL","030.3612"],["bead","GENERAL","030.3613"],
+  ["bead","GENERAL","030.3614"],["bead","GENERAL","030.3615"],
+  ["bead","GENERAL","030.3616"],["bead","GENERAL","030.3626"],
+  ["bead","GENERAL","030.3627"],["bead","GENERAL","030.3628"],
+  ["bead","GENERAL","030.3629"],["bead","GENERAL","030.3630"],
+  ["bead","GENERAL","030.3631"],["bead","GENERAL","030.3632"],
+  ["bead","GENERAL","030.3634"],
+  ["bead","GENERAL","130.3645"],["bead","GENERAL","130.3646"],
+  ["bead","ML8","408.0894"],
+  ["bead","SL38","002.0609"],["bead","SL38","002.0673"],["bead","SL38","002.0674"],
+  ["bead","SL38","002.0675"],["bead","SL38","002.0683"],["bead","SL38","002.0686"],
+  ["bead","SL38","002.0687"],["bead","SL38","002.0688"],
+  ["bead","SL38","002.1676"],["bead","SL38","002.1677"],["bead","SL38","002.2704"],
+  ["bead","SL38","403.0256"],["bead","SL38","403.0356"],
+  ["bead","SL38","403.0050"],["bead","SL38","403.0150"],
+  ["bead","SL38","403.0703"],["bead","SL38","403.0603"],
+  ["lprofile","STANDARD","0A5.0504"],
+  ["lprofile","STANDARD","0L2.0202"],
+  ["lprofile","STANDARD","0L4.0202"],
+  ["lprofile","STANDARD","0L5.0252"],
+];
+
+const TYPE_LABELS = { frame:"Рама/створка", door:"Дверь", bead:"Штапик", lprofile:"L-профиль" };
+
+const COLORS = [
+  ["00 — Mill finish (без покраски)", 0],
+  ["49 — Coatex", 5.88],
+  ["45 — Coatex (Seaside A)", 6.86],
+  ["51 — Стандартная покраска", 5.86],
+  ["59 — Сатин", 5.88],
+  ["55 — Сатин (Seaside A)", 6.86],
+  ["79 — Матовая", 5.88],
+  ["75 — Матовая (Seaside A)", 6.86],
+  ["99 — Металлик", 5.88],
+  ["PR (P04)", 8.14],
+  ["PR (P04) + Seaside A", 9.12],
+  ["PR (P06)", 7.34],
+  ["PR (P06) + Seaside A", 8.32],
+  ["PR (P07)", 9.20],
+  ["PR (P07) + Seaside A", 10.18],
+  ["PR (P09)", 12.98],
+  ["PR (P09) + Seaside A", 13.96],
+];
+
+/* ============================================================================
+   ХРАНИЛИЩЕ
+   ============================================================================ */
+const STORAGE_KEY = "elwido_reynaers_prices_v1";
+
+function loadPrices() {
+  try { const r = localStorage.getItem(STORAGE_KEY); return r ? JSON.parse(r) : {}; }
+  catch { return {}; }
+}
+function savePrices(p) { localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); }
+
+let prices = loadPrices();
+function getCM(num)     { return prices[num]?.cm     || 0; }
+function getLength(num) { return prices[num]?.length || 7; }
+
+/* ============================================================================
+   РАСЧЁТ
+   ============================================================================ */
+function calc() {
+  const geometry  = document.getElementById("geometry").value;
+  const R         = parseFloat(document.getElementById("radius").value)   || 0;
+  const B         = parseFloat(document.getElementById("chord").value)    || 0;
+  const H         = parseFloat(document.getElementById("sagitta").value)  || 0;
+  const profFrame = document.getElementById("profile-frame").value.trim();
+  const profBead  = document.getElementById("profile-bead").value.trim();
+  const colorIdx  = parseInt(document.getElementById("color").value);
+  const qty       = Math.max(1, parseInt(document.getElementById("quantity").value) || 1);
+  const bigAngle  = document.getElementById("big-angle").value === "yes";
+  const WL        = COLORS[colorIdx][1];
+
+  // DR
+  let DR_mm = 0;
+  if (geometry === "circle" || geometry === "halfcircle") {
+    DR_mm = Math.PI * R;
+  } else if (geometry === "segment" && R > 0 && B > 0 && B <= 2 * R) {
+    DR_mm = R * 2 * Math.asin(B / (2 * R));
+  }
+  const DR_m  = DR_mm / 1000;
+  const DG_mm = DR_mm + 600;
+
+  function calcDS(profileNum) {
+    const len = getLength(profileNum);
+    if (!len) return 0;
+    return DG_mm / 1000 <= len / 2 ? len / 2 : len;
+  }
+  const DS_frame = calcDS(profFrame);
+  const DS_bead  = profBead ? calcDS(profBead) : 0;
+
+  // Диапазон DR
+  let bandIdx = -1;
+  if      (DR_m <= 2)   bandIdx = 0;
+  else if (DR_m <= 3.5) bandIdx = 1;
+  else if (DR_m <= 4.5) bandIdx = 2;
+  else if (DR_m <= 5.5) bandIdx = 3;
+  else if (DR_m <= 6.5) bandIdx = 4;
+
+  function getBendPrice(profileNum) {
+    if (!profileNum || bandIdx < 0) return 0;
+    const row = BENDING_PRICES[profileNum];
+    if (!row) return 0;
+    return row[bandIdx] || 0;
+  }
+
+  const G_frame_unit = getBendPrice(profFrame);
+  const G_bead_unit  = profBead ? getBendPrice(profBead) : 0;
+
+  // M — материал
+  const circleMul = geometry === "circle" ? 2 : 1;
+  const M = circleMul * (getCM(profFrame) * DS_frame + getCM(profBead) * DS_bead);
+
+  // G — гибка
+  const angleMul = bigAngle ? 2 : 1;
+  const G_base   = (G_frame_unit + G_bead_unit) * circleMul * angleMul;
+
+  // Надбавка за комплект
+  let surcharge = 0;
+  if (profBead && qty === 1 && geometry !== "circle") {
+    surcharge += G_frame_unit >= 56 ? 30 : 12;
+    surcharge += G_bead_unit  >= 56 ? 30 : 12;
+  }
+
+  // L — покраска
+  let B1 = 0, H1 = 0;
+  if (geometry === "circle" || geometry === "halfcircle") {
+    B1 = (2 * R) / 1000;
+    H1 = R / 1000 + 0.1;
+  } else if (geometry === "segment") {
+    B1 = B / 1000 + 0.2;
+    H1 = H / 1000 + 0.1;
+  }
+  H1 = Math.max(0.25, H1);
+  const beadMul = profBead ? 2 : 1;
+  const L_one   = circleMul * beadMul * B1 * H1 * WL;
+
+  const W     = 0;
+  const K_one   = M + G_base + W + L_one;
+  const K_total = K_one * qty + surcharge;
+
+  // Проверки
+  const checks = [];
+  const minR_frame = MIN_RADII[profFrame];
+  const minR_bead  = profBead ? MIN_RADII[profBead] : null;
+
+  if (R > 0 && minR_frame !== undefined && minR_frame > 0) {
+    if (R >= minR_frame) {
+      checks.push({status:"ok",   title:"Радиус ≥ мин. для рамы",       note:`${minR_frame} мм минимум`});
+    } else {
+      checks.push({status:"err",  title:"Радиус меньше минимального",    note:`Для ${profFrame} нужно R ≥ ${minR_frame} мм`});
+    }
+  } else if (profFrame && minR_frame === undefined) {
+    checks.push({status:"warn", title:"Профиль рамы не найден",          note:`${profFrame} нет в каталоге`});
+  }
+
+  if (profBead) {
+    if (minR_bead !== undefined && minR_bead > 0) {
+      if (R >= minR_bead) {
+        checks.push({status:"ok",  title:"Радиус ≥ мин. для штапика",   note:`${minR_bead} мм минимум`});
+      } else {
+        checks.push({status:"err", title:"Радиус мал для штапика",      note:`Для ${profBead} нужно R ≥ ${minR_bead} мм`});
+      }
+    } else if (minR_bead === undefined) {
+      checks.push({status:"warn", title:"Штапик не найден в каталоге",  note:profBead});
+    }
+  }
+
+  const lenFrame = getLength(profFrame);
+  if (lenFrame > 0 && DG_mm / 1000 > lenFrame) {
+    checks.push({status:"err", title:"DG превышает длину штанги", note:`${(DG_mm/1000).toFixed(2)} м > ${lenFrame} м`});
+  } else if (DG_mm > 0) {
+    checks.push({status:"ok", title:"DG помещается в штангу"});
+  }
+
+  if (bandIdx < 0 && DR_mm > 0) {
+    checks.push({status:"err", title:"DR > 6.5 м", note:"Гибка вне таблицы"});
+  } else if (G_frame_unit === 0 && profFrame && bandIdx >= 0) {
+    checks.push({status:"err", title:"Гибка недоступна", note:`${profFrame} не гнётся при DR ${DR_m.toFixed(2)} м`});
+  } else if (DR_mm > 0) {
+    checks.push({status:"ok", title:"Гибка доступна для DR"});
+  }
+
+  if (H1 > 2 && WL > 0) {
+    checks.push({status:"err", title:"H превышает 2 м", note:"Не помещается в покрасочную камеру"});
+  }
+  if (geometry === "segment" && (B === 0 || H === 0 || B > 2 * R)) {
+    checks.push({status:"warn", title:"Проверь геометрию сегмента", note:"Заполни B и H, B ≤ 2R"});
+  }
+  if (getCM(profFrame) === 0 && profFrame) {
+    checks.push({status:"warn", title:"Не задана цена CM рамы",     note:`Заполни прайс для ${profFrame}`});
+  }
+  if (profBead && getCM(profBead) === 0) {
+    checks.push({status:"warn", title:"Не задана цена CM штапика",  note:`Заполни прайс для ${profBead}`});
+  }
+
+  return {
+    DR_mm, DG_mm, DR_m, DS_frame, DS_bead,
+    bandIdx, G_frame_unit, G_bead_unit,
+    M, G_base, surcharge, L_one, W,
+    K_one, K_total, qty, B1, H1, WL,
+    minR_frame, minR_bead,
+    CM_frame: getCM(profFrame), CM_bead: getCM(profBead),
+    checks
+  };
+}
+
+/* ============================================================================
+   РЕНДЕРИНГ
+   ============================================================================ */
+function fmt(n, dec = 2) {
+  if (!isFinite(n)) return "—";
+  return n.toLocaleString("ru-RU", {minimumFractionDigits:dec, maximumFractionDigits:dec});
+}
+function fmtMm(n) {
+  if (!isFinite(n) || n === 0) return "—";
+  return Math.round(n).toLocaleString("ru-RU") + " мм";
+}
+function fmtM(n, dec = 3) {
+  if (!isFinite(n)) return "—";
+  return n.toFixed(dec) + " м";
+}
+
+function render() {
+  const r = calc();
+
+  document.getElementById("segment-fields").style.display =
+    document.getElementById("geometry").value === "segment" ? "grid" : "none";
+
+  document.getElementById("total-value").textContent = fmt(r.K_total);
+  document.getElementById("total-arches").textContent = r.qty;
+  document.getElementById("total-sub").innerHTML =
+    `за ${r.qty} ${r.qty === 1 ? "арку" : "арок"} · без НДС`;
+
+  document.getElementById("bd-m").textContent         = fmt(r.M)         + " €";
+  document.getElementById("bd-g").textContent         = fmt(r.G_base)    + " €";
+  document.getElementById("bd-l").textContent         = fmt(r.L_one)     + " €";
+  document.getElementById("bd-surcharge").textContent = fmt(r.surcharge) + " €";
+  document.getElementById("bd-surcharge-row").style.display = r.surcharge > 0 ? "grid" : "none";
+
+  const BAND_LABELS = ["≤2 м","2–3,5 м","3–4,5 м","4,5–5,5 м","5,5–6,5 м"];
+  const grid = document.getElementById("interm-grid");
+  const items = [
+    ["DR — развёртка",       fmtMm(r.DR_mm)],
+    ["DG — с захватами",     fmtMm(r.DG_mm)],
+    ["DR в метрах",          fmtM(r.DR_m, 3)],
+    ["DS рамы",              fmtM(r.DS_frame, 1)],
+    ["DS штапика",           r.DS_bead > 0 ? fmtM(r.DS_bead, 1) : "—"],
+    ["Диапазон DR",          r.bandIdx >= 0 ? BAND_LABELS[r.bandIdx] : "вне таблицы"],
+    ["G рамы (1 гибка)",     fmt(r.G_frame_unit) + " €"],
+    ["G штапика (1 гибка)",  r.G_bead_unit > 0 ? fmt(r.G_bead_unit) + " €" : "—"],
+    ["CM рамы",              r.CM_frame > 0 ? fmt(r.CM_frame) + " €/м" : "не задана"],
+    ["CM штапика",           r.CM_bead  > 0 ? fmt(r.CM_bead)  + " €/м" : "—"],
+    ["B1 (горизонталь)",     fmtM(r.B1, 3)],
+    ["H1 (вертикаль)",       fmtM(r.H1, 3)],
+    ["WL (коэф. цвета)",     fmt(r.WL) + " €/м²"],
+    ["Мин. радиус рамы",     r.minR_frame ? r.minR_frame + " мм" : "—"],
+  ];
+  grid.innerHTML = items.map(([k, v]) =>
+    `<div class="interm-item"><span class="name">${k}</span><span class="value">${v}</span></div>`
+  ).join("");
+
+  const checksEl = document.getElementById("checks");
+  if (r.checks.length === 0) {
+    checksEl.innerHTML = `<div class="check muted">
+      <span class="check-icon">·</span>
+      <div class="check-text"><strong>Введите параметры</strong></div>
+    </div>`;
+  } else {
+    checksEl.innerHTML = r.checks.map(c => {
+      const sym = c.status === "ok" ? "✓" : c.status === "err" ? "!" : "?";
+      return `<div class="check ${c.status}">
+        <span class="check-icon">${sym}</span>
+        <div class="check-text">
+          <strong>${c.title}</strong>
+          ${c.note ? `<span>${c.note}</span>` : ""}
+        </div>
+      </div>`;
+    }).join("");
+  }
+}
+
+/* ============================================================================
+   ПРАЙС-ТАБЛИЦА
+   ============================================================================ */
+function renderPriceTable() {
+  const search    = document.getElementById("filter-search").value.toLowerCase();
+  const typeFilter = document.getElementById("filter-type").value;
+  const sysFilter  = document.getElementById("filter-system").value;
+
+  const rows = CATALOG
+    .filter(([type, sys, num]) => {
+      if (typeFilter && type !== typeFilter) return false;
+      if (sysFilter  && sys  !== sysFilter)  return false;
+      if (search && !num.toLowerCase().includes(search) && !sys.toLowerCase().includes(search)) return false;
+      return true;
+    })
+    .map(([type, sys, num]) => {
+      const minR = MIN_RADII[num];
+      const cm   = prices[num]?.cm     || "";
+      const len  = prices[num]?.length || 7;
+      return `<tr>
+        <td class="type">${TYPE_LABELS[type]}</td>
+        <td class="system">${sys}</td>
+        <td>${num}</td>
+        <td class="num"><input type="number" step="0.01" min="0" value="${cm}" placeholder="0.00" data-num="${num}" data-field="cm"></td>
+        <td class="num"><input type="number" step="0.5"  min="0" value="${len}" data-num="${num}" data-field="length"></td>
+        <td class="num">${minR === 0 ? "как у профиля" : minR ? minR : "—"}</td>
+      </tr>`;
+    });
+
+  document.getElementById("price-tbody").innerHTML = rows.join("");
+
+  document.querySelectorAll("#price-tbody input").forEach(input => {
+    input.addEventListener("input", e => {
+      const num  = e.target.dataset.num;
+      const field = e.target.dataset.field;
+      const val  = parseFloat(e.target.value) || 0;
+      if (!prices[num]) prices[num] = {};
+      prices[num][field] = val;
+      savePrices(prices);
+      render();
+    });
+  });
+}
+
+function exportPrices() {
+  const blob = new Blob([JSON.stringify(prices, null, 2)], {type:"application/json"});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement("a");
+  a.href     = url;
+  a.download = `elwido_prices_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importPrices(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      prices = JSON.parse(e.target.result);
+      savePrices(prices);
+      renderPriceTable();
+      render();
+      alert("Прайс импортирован.");
+    } catch { alert("Ошибка чтения файла."); }
+  };
+  reader.readAsText(file);
+}
+
+function resetPrices() {
+  if (!confirm("Очистить все цены? Это действие нельзя отменить.")) return;
+  prices = {};
+  savePrices(prices);
+  renderPriceTable();
+  render();
+}
+
+/* ============================================================================
+   ИНИЦИАЛИЗАЦИЯ
+   ============================================================================ */
+function init() {
+  // Цвета
+  const colorSel = document.getElementById("color");
+  COLORS.forEach((c, i) => {
+    const opt = document.createElement("option");
+    opt.value = i;
+    opt.textContent = c[0];
+    if (i === 4) opt.selected = true; // 59 — Сатин по умолчанию
+    colorSel.appendChild(opt);
+  });
+
+  // Datalist
+  const dl = document.getElementById("profile-list");
+  CATALOG.forEach(([, sys, num]) => {
+    const opt = document.createElement("option");
+    opt.value = num;
+    opt.label = sys;
+    dl.appendChild(opt);
+  });
+
+  // Системы для фильтра
+  const systems = [...new Set(CATALOG.map(c => c[1]))].sort();
+  const sysSel  = document.getElementById("filter-system");
+  systems.forEach(s => {
+    const opt = document.createElement("option");
+    opt.value = s;
+    opt.textContent = s;
+    sysSel.appendChild(opt);
+  });
+
+  // События ввода
+  ["geometry","radius","chord","sagitta","profile-frame","profile-bead","color","quantity","big-angle"]
+    .forEach(id => {
+      const el = document.getElementById(id);
+      el.addEventListener("input",  render);
+      el.addEventListener("change", render);
+    });
+
+  ["filter-search","filter-type","filter-system"].forEach(id => {
+    document.getElementById(id).addEventListener("input", renderPriceTable);
+  });
+
+  renderPriceTable();
+  render();
+}
+
+init();
+</script>
+</body>
+</html>
