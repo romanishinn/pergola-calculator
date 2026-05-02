@@ -58,21 +58,6 @@ body {
   color: rgba(255,255,255,0.45);
   margin-top: 2px;
 }
-.btn-header {
-  display: inline-block;
-  background: var(--accent);
-  color: var(--white);
-  font-size: 13px;
-  font-weight: 700;
-  padding: 9px 20px;
-  border-radius: var(--r-sm);
-  text-decoration: none;
-  letter-spacing: 0.1px;
-  white-space: nowrap;
-  transition: opacity 0.15s;
-  flex-shrink: 0;
-}
-.btn-header:hover { opacity: 0.88; }
 
 /* ── Hero ─────────────────────────────────────────────── */
 .hero {
@@ -129,27 +114,62 @@ body {
 .btn-hero:hover  { opacity: 0.9; }
 .btn-hero:active { transform: scale(0.98); }
 
-.hero-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  justify-content: center;
+.hero-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 8px;
 }
 
-.btn-hero-secondary {
-  display: inline-block;
-  background: transparent;
-  color: rgba(255,255,255,0.7);
-  font-size: 15px;
-  font-weight: 600;
-  padding: 15px 36px;
-  border-radius: var(--r-md);
+.hero-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(255,255,255,0.06);
+  border: 1.5px solid rgba(255,255,255,0.12);
+  border-radius: var(--r-lg);
+  padding: 22px 20px;
   text-decoration: none;
-  letter-spacing: 0.2px;
-  border: 1.5px solid rgba(255,255,255,0.2);
-  transition: border-color 0.15s, color 0.15s;
+  transition: background 0.18s, border-color 0.18s, transform 0.12s;
+  text-align: left;
 }
-.btn-hero-secondary:hover { border-color: rgba(255,255,255,0.5); color: var(--white); }
+.hero-card:hover {
+  background: rgba(255,255,255,0.11);
+  border-color: rgba(255,255,255,0.28);
+  transform: translateY(-2px);
+}
+.hero-card:active { transform: translateY(0); }
+
+.hero-card-icon {
+  font-size: 32px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.hero-card-body { flex: 1; }
+.hero-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 5px;
+  letter-spacing: -0.2px;
+}
+.hero-card-desc {
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.55;
+}
+.hero-card-arrow {
+  font-size: 18px;
+  color: var(--accent);
+  flex-shrink: 0;
+  transition: transform 0.15s;
+}
+.hero-card:hover .hero-card-arrow { transform: translateX(4px); }
+
+@media (max-width: 600px) {
+  .hero-cards { grid-template-columns: 1fr; }
+  .hero-card-title { font-size: 15px; }
+}
 
 @media (max-width: 560px) {
   .header { padding: 14px 16px; }
