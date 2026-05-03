@@ -498,7 +498,10 @@
     background: transparent;
     text-align: right;
     width: 100px;
+    -moz-appearance: textfield;
   }
+  td input[type="number"]::-webkit-outer-spin-button,
+  td input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   td input[type="number"]:focus { border-color: var(--accent); background: white; outline: none; }
 
   datalist { display: none; }
@@ -1284,10 +1287,20 @@ function renderPriceTable() {
   document.getElementById("price-tbody").innerHTML = rows.join("");
 
   document.querySelectorAll("#price-tbody input").forEach(input => {
-    input.addEventListener("input", e => {
-      const num  = e.target.dataset.num;
+    input.addEventListener("change", e => {
+      const num   = e.target.dataset.num;
       const field = e.target.dataset.field;
-      const val  = parseFloat(e.target.value) || 0;
+      const val   = parseFloat(e.target.value) || 0;
+      const label = field === "cm" ? `CM = ${val} €/м` : `Штанга = ${val} м`;
+
+      if (val > 0) {
+        const ok = confirm(`Подтвердите введённое значение:\n\nПрофиль: ${num}\n${label}\n\nСтоимость введена корректно?`);
+        if (!ok) {
+          e.target.value = prices[num]?.[field] || "";
+          return;
+        }
+      }
+
       if (!prices[num]) prices[num] = {};
       prices[num][field] = val;
       savePrices(prices);

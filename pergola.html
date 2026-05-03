@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Расчёт перголы Elwido 2026</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-logo">Elwido</div>
+    <div class="sub">Калькулятор перголы 2026</div>
+  </div>
+  <a href="index.html" class="btn-back">← Все инструменты</a>
+</div>
+
+<div class="container" id="calculator">
+  <div class="grid">
+
+    <!-- LEFT: Dimensions & System -->
+    <div>
+      <div class="card">
+        <h2>Размеры и система</h2>
+
+        <label>Ширина (вдоль стены / фасада), мм</label>
+        <input type="number" id="width" value="3000" min="1000" max="15000" step="100" placeholder="напр. 3000">
+
+        <label>Вынос (глубина от стены), мм</label>
+        <input type="number" id="projection" value="7000" min="1000" max="7000" step="100" placeholder="напр. 4000">
+
+        <label>Высота в свету (стандарт ~2500), мм</label>
+        <input type="number" id="height" value="2500" min="1000" max="4000" step="100" placeholder="напр. 2500">
+
+        <label>Тип монтажа</label>
+        <select id="mounting">
+          <option value="free">Отдельностоящая (Free-standing)</option>
+          <option value="wall">Настенная (Wall-mounted)</option>
+        </select>
+
+        <input type="hidden" id="system" value="auto">
+      </div>
+    </div>
+
+    <!-- RIGHT: Options -->
+    <div>
+      <div class="card">
+        <h2>Опции и надбавки</h2>
+
+        <label>Цвет конструкции и лопастей</label>
+        <select id="color">
+          <option value="standard">Стандарт Elwido (включено)</option>
+          <option value="ral">Цвет RAL вне палитры (+20%)</option>
+          <option value="wood">Wood-like / дерево (+20%)</option>
+        </select>
+
+        <label style="margin-top:16px;">Дополнительные опции</label>
+        <div class="checkbox-group">
+
+          <label class="checkbox-item" id="lbl-led">
+            <input type="checkbox" id="opt-led">
+            <div>
+              <div class="label-text">💡 LED освещение</div>
+              <div class="label-desc">Базовый комплект: +869 € (фиксировано)</div>
+            </div>
+          </label>
+
+          <label class="checkbox-item" id="lbl-led-pts">
+            <input type="checkbox" id="opt-led-pts">
+            <div>
+              <div class="label-text">💡 Световые точки (LED points)</div>
+              <div class="label-desc">Зависит от размера: 824–1255 € (расчёт автоматически)</div>
+            </div>
+          </label>
+
+          <label class="checkbox-item">
+            <input type="checkbox" id="opt-drain">
+            <div>
+              <div class="label-text">🌧 Дренаж в 1 стойку (4 водостока)</div>
+              <div class="label-desc">Надбавка +10% к цене системы</div>
+            </div>
+          </label>
+
+          <label class="checkbox-item">
+            <input type="checkbox" id="opt-teleco">
+            <div>
+              <div class="label-text">📡 Контроллер Teleco (радио)</div>
+              <div class="label-desc">Фиксированно +709 €</div>
+            </div>
+          </label>
+
+        </div>
+
+        <div class="info-box" style="margin-top:16px;">
+          ℹ️ Все цены в € без НДС · Срок изготовления: 3–6 нед (SB350: 1 нед)
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <button class="btn-calc" onclick="calculate()">🔢 Рассчитать</button>
+
+  <div class="result-section" id="results" style="display:none;"></div>
+</div>
+
+<div class="compare-section">
+  <div class="container">
+    <div class="compare-card">
+    <h2>Сравнение моделей перголы</h2>
+    <div class="compare-table-wrap">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th class="col-model">Модель</th>
+            <th class="col-desc">Для чего подходит</th>
+            <th class="col-num">Макс. ширина</th>
+            <th class="col-num">Вынос (мм)</th>
+            <th class="col-bool">Отдельно-<br>стоящая</th>
+            <th class="col-bool">Возле<br>стены</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="model-badge model-premium">SB 550</span></td>
+            <td class="desc-cell">Большие террасы, рестораны, гостиницы, коммерческие пространства. Премиальные лопасти, модульная конструкция до 3 секций.</td>
+            <td class="num-cell">до 15 000 мм<span class="cell-note">3 модуля по 5000</span></td>
+            <td class="num-cell">2580–6980</td>
+            <td class="bool-cell"><span class="badge-yes">Да</span></td>
+            <td class="bool-cell"><span class="badge-yes">Да</span></td>
+          </tr>
+          <tr>
+            <td><span class="model-badge">SB 450</span></td>
+            <td class="desc-cell">Частные дома, средние террасы, сады. Вынос до 6010 мм, шаг 204 мм.</td>
+            <td class="num-cell">до 3 000 мм</td>
+            <td class="num-cell">1930–6010</td>
+            <td class="bool-cell"><span class="badge-yes">Да</span></td>
+            <td class="bool-cell"><span class="badge-yes">Да</span></td>
+          </tr>
+          <tr>
+            <td><span class="model-badge">SB 400</span></td>
+            <td class="desc-cell">Небольшие террасы, дворы, компактные зоны отдыха. Лопасти 200 мм, вынос до 7000 мм.</td>
+            <td class="num-cell">до 4 000 мм</td>
+            <td class="num-cell">3400–7000</td>
+            <td class="bool-cell"><span class="badge-yes">Да</span></td>
+            <td class="bool-cell"><span class="badge-yes">Да</span></td>
+          </tr>
+          <tr>
+            <td><span class="model-badge model-drain">SB 400R</span></td>
+            <td class="desc-cell">Террасы, где важен хороший отвод дождевой воды. Дренаж DN50 на сторону клиента.</td>
+            <td class="num-cell">до 4 000 мм</td>
+            <td class="num-cell">3400–7000</td>
+            <td class="bool-cell"><span class="badge-yes">Да</span></td>
+            <td class="bool-cell"><span class="badge-yes">Да</span></td>
+          </tr>
+          <tr>
+            <td><span class="model-badge">SB 350</span></td>
+            <td class="desc-cell">Простые решения для небольших террас. Фиксированная ширина 3500 мм, высота 2500 мм.</td>
+            <td class="num-cell">3 500 мм<span class="cell-note">фиксированная</span></td>
+            <td class="num-cell">3400–4750</td>
+            <td class="bool-cell"><span class="badge-yes">Да</span></td>
+            <td class="bool-cell"><span class="badge-no">Нет</span></td>
+          </tr>
+          <tr>
+            <td><span class="model-badge model-solid">SOLID</span></td>
+            <td class="desc-cell">Полностью закрытая крыша без лопастей (ткань Serge Ferrari). Максимальная защита от дождя и солнца.</td>
+            <td class="num-cell">до 12 000 мм<span class="cell-note">3 модуля по 4000</span></td>
+            <td class="num-cell">3000–7000</td>
+            <td class="bool-cell"><span class="badge-yes">Да</span></td>
+            <td class="bool-cell"><span class="badge-yes">Да</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    </div>
+  </div>
+</div>
+
+<div class="about-section">
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-card">
+        <div class="about-icon">🏗️</div>
+        <h3>Алюминиевая конструкция</h3>
+        <p>Все системы Elwido изготовлены из экструдированного алюминия с порошковой окраской. Конструкция устойчива к коррозии, ветровым нагрузкам и ультрафиолету — без технического обслуживания на весь срок службы.</p>
+      </div>
+      <div class="about-card">
+        <div class="about-icon">🔄</div>
+        <h3>Поворотные лопасти</h3>
+        <p>Лопасти открываются и закрываются электромотором по команде с пульта или смартфона. В открытом положении обеспечивают полную вентиляцию, в закрытом — защиту от дождя с отводом воды через встроенный дренаж.</p>
+      </div>
+      <div class="about-card">
+        <div class="about-icon">📐</div>
+        <h3>Модульная система</h3>
+        <p>Пергола собирается из стандартных модулей шириной до 5000 мм. Комбинация модулей позволяет перекрыть фасад любой длины. SB 550 и Solid поддерживают до 3 модулей в одной секции без промежуточной несущей стены.</p>
+      </div>
+      <div class="about-card">
+        <div class="about-icon">🌧️</div>
+        <h3>Водоотведение</h3>
+        <p>Стандартная система дренажа отводит воду через несущие стойки. SB 400R выводит дренаж на сторону заказчика через патрубок DN 50. Опция «дренаж в 1 стойку» собирает 4 водостока в одну точку для скрытой канализации.</p>
+      </div>
+      <div class="about-card">
+        <div class="about-icon">💡</div>
+        <h3>LED освещение</h3>
+        <p>Базовый LED-комплект монтируется в профиль лопастей и работает от встроенного трансформатора. Световые точки (LED spots) врезаются в лопасти и дают направленный свет вниз. Количество комплектов соответствует числу модулей.</p>
+      </div>
+      <div class="about-card">
+        <div class="about-icon">⚙️</div>
+        <h3>Управление и автоматика</h3>
+        <p>Стандартное управление — проводной выключатель или пульт Somfy. Опциональный радиоконтроллер Teleco обеспечивает беспроводное управление на расстоянии до 50 м. Интеграция с умным домом и датчиком ветра — по запросу.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="price-data.js"></script>
+<script src="calculator.js"></script>
+</body>
+</html>
