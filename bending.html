@@ -506,6 +506,117 @@
 
   datalist { display: none; }
 
+  /* ── Segment hint diagram ── */
+  .segment-hint {
+    grid-column: 1 / -1;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    padding: 16px 20px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+  .segment-hint svg { flex-shrink: 0; }
+  .segment-hint-text { font-size: 12px; color: var(--muted); line-height: 1.8; }
+  .segment-hint-text strong { color: var(--ink); font-weight: 600; }
+  @media (max-width: 600px) {
+    .segment-hint { flex-direction: column; }
+  }
+
+  /* ── Add position button ── */
+  .btn-add-pos {
+    width: 100%;
+    margin-top: 24px;
+    padding: 12px;
+    background: transparent;
+    border: 1.5px dashed rgba(247,245,240,0.3);
+    color: rgba(247,245,240,0.7);
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .btn-add-pos:hover { border-color: var(--accent-soft); color: var(--paper); }
+
+  /* ── Positions section ── */
+  .positions-section { margin-top: 40px; }
+
+  .pos-list { border: 1px solid var(--line); background: var(--paper); }
+
+  .pos-row {
+    display: grid;
+    grid-template-columns: 32px 1fr auto auto;
+    gap: 16px;
+    align-items: center;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--line-soft);
+    transition: background 0.1s;
+  }
+  .pos-row:last-child { border-bottom: none; }
+  .pos-row:hover { background: var(--paper-warm); }
+
+  .pos-num {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    text-align: center;
+    background: var(--line-soft);
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: grid;
+    place-items: center;
+  }
+  .pos-main {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+  .pos-detail {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .pos-price {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+  .pos-actions { display: flex; gap: 6px; }
+  .pos-btn {
+    background: none;
+    border: 1px solid var(--line);
+    padding: 5px 8px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.12s;
+    border-radius: 4px;
+  }
+  .pos-btn:hover { background: var(--paper-warm); border-color: #bbb; }
+  .pos-btn.delete:hover { background: #fff0ee; border-color: var(--accent); }
+
+  .pos-total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    background: var(--ink);
+    color: var(--paper);
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .pos-total-sum {
+    font-family: var(--font-mono);
+    font-size: 18px;
+    color: var(--accent-soft);
+  }
+
   /* ── Footer ── */
   footer {
     border-top: 1px solid var(--line);
@@ -605,6 +716,38 @@
               </div>
             </div>
 
+            <div class="segment-hint field-full" id="segment-hint" style="display:none">
+              <svg width="180" height="130" viewBox="0 0 180 130" xmlns="http://www.w3.org/2000/svg">
+                <!-- arc -->
+                <path d="M 21 88 A 80 80 0 0 1 159 88" fill="none" stroke="#c8431f" stroke-width="2.5" stroke-linecap="round"/>
+                <!-- chord B -->
+                <line x1="21" y1="88" x2="159" y2="88" stroke="#4a5568" stroke-width="1.5" stroke-dasharray="6,4"/>
+                <!-- sagitta H -->
+                <line x1="90" y1="88" x2="90" y2="10" stroke="#2d5f3f" stroke-width="1.5" stroke-dasharray="6,4"/>
+                <!-- radius R -->
+                <line x1="90" y1="168" x2="159" y2="88" stroke="#7a7466" stroke-width="1" stroke-dasharray="4,4"/>
+                <!-- center point -->
+                <circle cx="90" cy="168" r="3" fill="#7a7466"/>
+                <!-- endpoints -->
+                <circle cx="21" cy="88" r="3" fill="#4a5568"/>
+                <circle cx="159" cy="88" r="3" fill="#4a5568"/>
+                <circle cx="90" cy="10" r="3" fill="#c8431f"/>
+                <!-- midpoint of chord -->
+                <circle cx="90" cy="88" r="3" fill="#2d5f3f"/>
+                <!-- label B -->
+                <text x="90" y="108" text-anchor="middle" font-size="13" font-weight="700" fill="#4a5568" font-family="sans-serif">B</text>
+                <!-- label H -->
+                <text x="104" y="53" text-anchor="start" font-size="13" font-weight="700" fill="#2d5f3f" font-family="sans-serif">H</text>
+                <!-- label R -->
+                <text x="134" y="138" text-anchor="start" font-size="11" fill="#7a7466" font-family="sans-serif">R</text>
+              </svg>
+              <div class="segment-hint-text">
+                <div><strong>B — Хорда</strong> — ширина проёма по прямой (горизонталь)</div>
+                <div><strong>H — Стрела</strong> — высота дуги от хорды до вершины арки</div>
+                <div><strong>R — Радиус</strong> — вычисляется автоматически: R = (B²/4 + H²) / (2H)</div>
+              </div>
+            </div>
+
             <div class="field field-full">
               <label>Профиль рамы <span class="hint">№ артикула</span></label>
               <input type="text" id="profile-frame" list="profile-list" value="001.0136" placeholder="например, 001.0136">
@@ -687,10 +830,24 @@
           </div>
 
           <div class="checks" id="checks"></div>
+          <button class="btn-add-pos" onclick="addPosition()">+ Добавить позицию в список</button>
         </div>
       </aside>
 
     </div>
+
+    <!-- СПИСОК ПОЗИЦИЙ -->
+    <section class="positions-section" id="positions-section" style="display:none">
+      <div class="section-head">
+        <div>
+          <h2>Список <em>позиций</em></h2>
+          <p>Добавленные позиции для расчёта заказа. Итог — сумма всех позиций.</p>
+        </div>
+        <button class="btn ghost" onclick="clearPositions()">Очистить список</button>
+      </div>
+      <div class="pos-list" id="pos-list"></div>
+      <div id="pos-total"></div>
+    </section>
 
     <!-- ПРАЙС-РЕДАКТОР -->
     <section class="price-editor">
@@ -1181,6 +1338,99 @@ function calc() {
 }
 
 /* ============================================================================
+   СПИСОК ПОЗИЦИЙ
+   ============================================================================ */
+let positions = [];
+
+function addPosition() {
+  const r = calc();
+  const geometry  = document.getElementById("geometry").value;
+  const R         = parseFloat(document.getElementById("radius").value) || 0;
+  const B         = parseFloat(document.getElementById("chord").value) || 0;
+  const H         = parseFloat(document.getElementById("sagitta").value) || 0;
+  const profFrame = document.getElementById("profile-frame").value.trim();
+  const profBead  = document.getElementById("profile-bead").value.trim();
+  const colorIdx  = parseInt(document.getElementById("color").value);
+  const qty       = Math.max(1, parseInt(document.getElementById("quantity").value) || 1);
+  const bigAngle  = document.getElementById("big-angle").value;
+  const geoLabels = { halfcircle:"Полукруг", circle:"Круг", segment:"Сегмент" };
+
+  positions.push({
+    geometry, R, B, H, profFrame, profBead,
+    colorIdx, qty, bigAngle,
+    K_total: r.K_total,
+    geoLabel: geoLabels[geometry],
+    colorLabel: COLORS[colorIdx][0].split(" — ")[0] || COLORS[colorIdx][0]
+  });
+  renderPositions();
+
+  // Scroll to list
+  document.getElementById("positions-section").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function deletePosition(idx) {
+  positions.splice(idx, 1);
+  renderPositions();
+}
+
+function editPosition(idx) {
+  const p = positions[idx];
+  document.getElementById("geometry").value      = p.geometry;
+  document.getElementById("radius").value        = p.R;
+  document.getElementById("chord").value         = p.B;
+  document.getElementById("sagitta").value       = p.H;
+  document.getElementById("profile-frame").value = p.profFrame;
+  document.getElementById("profile-bead").value  = p.profBead;
+  document.getElementById("color").value         = p.colorIdx;
+  document.getElementById("quantity").value      = p.qty;
+  document.getElementById("big-angle").value     = p.bigAngle;
+  render();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function clearPositions() {
+  if (!confirm("Очистить весь список позиций?")) return;
+  positions = [];
+  renderPositions();
+}
+
+function renderPositions() {
+  const section = document.getElementById("positions-section");
+  const list    = document.getElementById("pos-list");
+  const totalEl = document.getElementById("pos-total");
+
+  if (positions.length === 0) {
+    section.style.display = "none";
+    return;
+  }
+  section.style.display = "block";
+
+  let totalSum = 0;
+  list.innerHTML = positions.map((p, i) => {
+    totalSum += p.K_total || 0;
+    const beadStr = p.profBead ? ` + ${p.profBead}` : "";
+    const segStr  = p.geometry === "segment" ? ` · B=${p.B} мм · H=${p.H} мм` : "";
+    return `<div class="pos-row">
+      <div class="pos-num">${i + 1}</div>
+      <div class="pos-info">
+        <div class="pos-main">${p.geoLabel} · R = ${p.R} мм${segStr}</div>
+        <div class="pos-detail">${p.profFrame}${beadStr} · ${p.colorLabel} · ${p.qty} шт.</div>
+      </div>
+      <div class="pos-price">${fmt(p.K_total)} €</div>
+      <div class="pos-actions">
+        <button class="pos-btn edit"   onclick="editPosition(${i})"   title="Редактировать">✏️</button>
+        <button class="pos-btn delete" onclick="deletePosition(${i})" title="Удалить">🗑</button>
+      </div>
+    </div>`;
+  }).join("");
+
+  totalEl.innerHTML = `<div class="pos-total-row">
+    <span>Итого ${positions.length} позиц.</span>
+    <span class="pos-total-sum">${fmt(totalSum)} €</span>
+  </div>`;
+}
+
+/* ============================================================================
    РЕНДЕРИНГ
    ============================================================================ */
 function fmt(n, dec = 2) {
@@ -1199,8 +1449,9 @@ function fmtM(n, dec = 3) {
 function render() {
   const r = calc();
 
-  document.getElementById("segment-fields").style.display =
-    document.getElementById("geometry").value === "segment" ? "grid" : "none";
+  const isSegment = document.getElementById("geometry").value === "segment";
+  document.getElementById("segment-fields").style.display = isSegment ? "grid"  : "none";
+  document.getElementById("segment-hint").style.display   = isSegment ? "flex"  : "none";
 
   document.getElementById("total-value").textContent = fmt(r.K_total);
   document.getElementById("total-arches").textContent = r.qty;
